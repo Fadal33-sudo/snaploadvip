@@ -36,3 +36,28 @@
 .animate-fade-in {
     animation: fadeIn 0.4s ease-out forwards;
 }
+
+/* PWA Install Banner */
+#pwaInstallBanner {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    width: 90%;
+    max-width: 450px;
+    background: white;
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.dark #pwaInstallBanner {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+#pwaInstallBanner.show {
+    transform: translateX(-50%) translateY(0);
+}
+

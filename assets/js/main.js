@@ -480,10 +480,83 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }).catch(() => {});
 
-        sb.auth.onAuthStateChange((_event, session) => {
-            updateSidebarAuthUI(session?.user || null);
+        sb.auth.onAuthStateChange((event, session) => {
+            const user = session?.user || null;
+            updateSidebarAuthUI(user);
+            
+            // Show PWA Install Prompt after login/signup
+            if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+                if (user) {
+                    setTimeout(showPWAInstallPrompt, 2000);
+                }
+            }
         });
     } else {
         updateSidebarAuthUI(null);
+    }
+
+    // --- PWA Service Worker & Install Prompt ---
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker registered', reg))
+                .catch(err => console.log('Service Worker registration failed', err));
+        });
+    }
+
+    let deferredPrompt;
+    const pwaInstallBanner = document.createElement('div');
+    pwaInstallBanner.id = 'pwaInstallBanner';
+    pwaInstallBanner.innerHTML = `
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-primary/20">
+                <i class="fa-solid fa-clapperboard text-white text-xl"></i>
+            </div>
+            <div class="flex-grow">
+                <p class="text-sm font-semibold text-black dark:text-white leading-tight mb-1">Install SnapLoad VIP</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Ku dar SnapLoad shaashaddaada (Install App) si aad ugu isticmaasho sidii barnaamij ahaan.</p>
+            </div>
+        </div>
+        <div class="flex gap-2 mt-4">
+            <button id="pwaCloseBtn" class="flex-1 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">Later</button>
+            <button id="pwaInstallBtn" class="flex-[2] py-2 text-sm font-bold bg-primary text-white dark:bg-neonBlue dark:text-black rounded-lg hover:bg-primaryHover transition-colors">Install</button>
+        </div>
+    `;
+    document.body.appendChild(pwaInstallBanner);
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent the mini-infobar from appearing on mobile
+        e.preventDefault();
+        // Stash the event so it can be triggered later.
+        deferredPrompt = e;
+        console.log('beforeinstallprompt event fired');
+    });
+
+    function showPWAInstallPrompt() {
+        if (deferredPrompt && !localStorage.getItem('pwa_dismissed')) {
+            pwaInstallBanner.classList.add('show');
+        }
+    }
+
+    const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+    const pwaCloseBtn = document.getElementById('pwaCloseBtn');
+
+    if (pwaInstallBtn) {
+        pwaInstallBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            pwaInstallBanner.classList.remove('show');
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response to the install prompt: ${outcome}`);
+            deferredPrompt = null;
+        });
+    }
+
+    if (pwaCloseBtn) {
+        pwaCloseBtn.addEventListener('click', () => {
+            pwaInstallBanner.classList.remove('show');
+            // Don't show again for 7 days
+            localStorage.setItem('pwa_dismissed', Date.now());
+        });
     }
 });

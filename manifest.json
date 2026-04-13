@@ -1,0 +1,23 @@
+{
+  "name": "SnapLoad VIP",
+  "short_name": "SnapLoad",
+  "description": "Download 4K YouTube videos and extract MP3 audio easily.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0056b3",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192x192/0056b3/ffffff?text=SL",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512/0056b3/ffffff?text=SnapLoad",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
