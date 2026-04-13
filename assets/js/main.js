@@ -9,7 +9,11 @@ const CONFIG = {
     // EmailJS Configuration
     EMAILJS_SERVICE_ID: "service_h7gi8lt",
     EMAILJS_TEMPLATE_ID: "template_xt17vas",
-    EMAILJS_PUBLIC_KEY: "SAZjsM7udbeGo5-2R"
+    EMAILJS_PUBLIC_KEY: "SAZjsM7udbeGo5-2R",
+
+    // RapidAPI Configuration
+    RAPIDAPI_KEY: "3636ef70f7msh2f51f6c81c32753p1b115ejsn96bd79a11c4a",
+    RAPIDAPI_HOST: "auto-download-all-in-one.p.rapidapi.com"
 };
 
 // Make CONFIG globally available for supabaseClient.js if it runs later (not the case here but good for consistency)
@@ -224,12 +228,31 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderResultCard(data) {
         if (!resultContainer) return;
         
-        const title = data.filename || 'Video Result';
-        const thumbnail = data.picker?.[0]?.thumb || 'https://via.placeholder.com/640x360?text=No+Thumbnail';
+        // Response structure for Auto Download All In One API
+        // It usually returns a 'video' object or direct links
+        const title = data.title || 'Video Result';
+        const thumbnail = data.thumbnail || 'https://via.placeholder.com/640x360?text=No+Thumbnail';
         
-        // Cobalt API response structure varies, we'll try to find video and audio links
-        // For Cobalt, usually 'url' is the main download link
-        const videoUrl = data.url;
+        // Find MP4 and MP3 links from the 'medias' array or similar
+        let videoUrl = '';
+        let audioUrl = '';
+
+        if (data.medias && Array.isArray(data.medias)) {
+            // Find highest quality MP4
+            const videoMedias = data.medias.filter(m => m.extension === 'mp4' && m.type === 'video');
+            if (videoMedias.length > 0) {
+                videoUrl = videoMedias[0].url;
+            }
+
+            // Find MP3
+            const audioMedias = data.medias.filter(m => m.extension === 'mp3' || m.type === 'audio');
+            if (audioMedias.length > 0) {
+                audioUrl = audioMedias[0].url;
+            }
+        }
+        
+        // Fallback to provided URLs if medias is empty
+        if (!videoUrl) videoUrl = data.url || '#';
         
         resultContainer.innerHTML = `
             <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 md:p-6 border border-gray-200 dark:border-gray-700 animate-fade-in">
@@ -246,14 +269,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                            ${!isAudioMode ? `
                             <a href="${videoUrl}" target="_blank" download class="flex items-center justify-center gap-2 bg-primary hover:bg-primaryHover text-white font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm">
                                 <i class="fa-solid fa-video"></i>
                                 Download MP4
                             </a>
-                            <button id="downloadAudioBtn" class="flex items-center justify-center gap-2 border-2 border-primary text-primary dark:border-neonBlue dark:text-neonBlue hover:bg-primary hover:text-white dark:hover:bg-neonBlue dark:hover:text-black font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm">
+                            ` : ''}
+                            <a href="${audioUrl || '#'}" target="_blank" download class="flex items-center justify-center gap-2 border-2 border-primary text-primary dark:border-neonBlue dark:text-neonBlue hover:bg-primary hover:text-white dark:hover:bg-neonBlue dark:hover:text-black font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm ${!audioUrl ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}">
                                 <i class="fa-solid fa-music"></i>
                                 Download MP3
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -261,42 +286,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         
         resultContainer.classList.remove('hidden');
-
-        // Audio fetch logic if separate
-        const audioBtn = document.getElementById('downloadAudioBtn');
-        if (audioBtn) {
-            audioBtn.addEventListener('click', async () => {
-                const originalText = audioBtn.innerHTML;
-                audioBtn.disabled = true;
-                audioBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Fetching MP3...';
-                
-                try {
-                    const response = await fetch('https://api.cobalt.tools/api/json', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            url: videoUrlInput.value.trim(),
-                            isAudioOnly: true
-                        })
-                    });
-                    const audioData = await response.json();
-                    if (audioData.url) {
-                        window.open(audioData.url, '_blank');
-                    } else {
-                        showToast('Failed to fetch audio link.');
-                    }
-                } catch (err) {
-                    console.error(err);
-                    showToast('Error fetching audio.');
-                } finally {
-                    audioBtn.disabled = false;
-                    audioBtn.innerHTML = originalText;
-                }
-            });
-        }
     }
 
     if (downloadBtn && downloadSpinner && videoUrlInput) {
@@ -311,48 +300,34 @@ document.addEventListener('DOMContentLoaded', () => {
             if (resultContainer) resultContainer.classList.add('hidden');
             downloadSpinner.classList.remove('hidden');
             downloadBtn.setAttribute('disabled', 'true');
-            if (downloadBtnText) downloadBtnText.textContent = 'Fetching video details...';
+            if (downloadBtnText) downloadBtnText.textContent = 'Processing...';
             downloadBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
             try {
-                // Using Cobalt API (Public instance)
-                const fetchOptions = {
-                    url: url,
-                    vQuality: '720', // Standard quality for free
-                    filenameStyle: 'pretty'
-                };
-
-                // If in audio mode, force audio only
-                if (isAudioMode) {
-                    fetchOptions.isAudioOnly = true;
-                }
-
-                const response = await fetch('https://api.cobalt.tools/api/json', {
+                // Using Auto Download All In One API via RapidAPI
+                const response = await fetch('https://auto-download-all-in-one.p.rapidapi.com/v1/get-info', {
                     method: 'POST',
                     headers: {
-                        'Accept': 'application/json',
+                        'x-rapidapi-key': CONFIG.RAPIDAPI_KEY,
+                        'x-rapidapi-host': CONFIG.RAPIDAPI_HOST,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(fetchOptions)
+                    body: JSON.stringify({ url: url })
                 });
 
                 if (!response.ok) throw new Error('API request failed');
 
                 const data = await response.json();
                 
-                if (data.status === 'error') {
-                    throw new Error(data.text || 'Failed to fetch video');
+                if (!data || data.error) {
+                    throw new Error(data?.message || 'Failed to fetch video');
                 }
 
-                if (data.url || data.picker) {
-                    renderResultCard(data);
-                } else {
-                    throw new Error('No download links found');
-                }
+                renderResultCard(data);
 
             } catch (err) {
                 console.error('Fetch error:', err);
-                showToast('Error: ' + err.message);
+                showToast('Fadlan hubi link-ga aad soo gelisay.');
             } finally {
                 downloadSpinner.classList.add('hidden');
                 downloadBtn.removeAttribute('disabled');
