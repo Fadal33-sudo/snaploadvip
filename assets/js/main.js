@@ -184,29 +184,141 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Download Button Logic ---
     const downloadBtn = document.getElementById('downloadBtn');
+    const downloadBtnText = document.getElementById('downloadBtnText');
     const downloadSpinner = document.getElementById('downloadSpinner');
+    const resultContainer = document.getElementById('resultContainer');
+
+    function renderResultCard(data) {
+        if (!resultContainer) return;
+        
+        const title = data.filename || 'Video Result';
+        const thumbnail = data.picker?.[0]?.thumb || 'https://via.placeholder.com/640x360?text=No+Thumbnail';
+        
+        // Cobalt API response structure varies, we'll try to find video and audio links
+        // For Cobalt, usually 'url' is the main download link
+        const videoUrl = data.url;
+        
+        resultContainer.innerHTML = `
+            <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 md:p-6 border border-gray-200 dark:border-gray-700 animate-fade-in">
+                <div class="flex flex-col md:flex-row gap-6">
+                    <!-- Thumbnail -->
+                    <div class="w-full md:w-1/3 shrink-0">
+                        <img src="${thumbnail}" alt="Thumbnail" class="w-full h-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+                    </div>
+                    
+                    <!-- Details & Actions -->
+                    <div class="flex-grow flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-black dark:text-white line-clamp-2 mb-4">${title}</h3>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                            <a href="${videoUrl}" target="_blank" download class="flex items-center justify-center gap-2 bg-primary hover:bg-primaryHover text-white font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm">
+                                <i class="fa-solid fa-video"></i>
+                                Download MP4
+                            </a>
+                            <button id="downloadAudioBtn" class="flex items-center justify-center gap-2 border-2 border-primary text-primary dark:border-neonBlue dark:text-neonBlue hover:bg-primary hover:text-white dark:hover:bg-neonBlue dark:hover:text-black font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm">
+                                <i class="fa-solid fa-music"></i>
+                                Download MP3
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        resultContainer.classList.remove('hidden');
+
+        // Audio fetch logic if separate
+        const audioBtn = document.getElementById('downloadAudioBtn');
+        if (audioBtn) {
+            audioBtn.addEventListener('click', async () => {
+                const originalText = audioBtn.innerHTML;
+                audioBtn.disabled = true;
+                audioBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Fetching MP3...';
+                
+                try {
+                    const response = await fetch('https://api.cobalt.tools/api/json', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            url: videoUrlInput.value.trim(),
+                            isAudioOnly: true
+                        })
+                    });
+                    const audioData = await response.json();
+                    if (audioData.url) {
+                        window.open(audioData.url, '_blank');
+                    } else {
+                        showToast('Failed to fetch audio link.');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToast('Error fetching audio.');
+                } finally {
+                    audioBtn.disabled = false;
+                    audioBtn.innerHTML = originalText;
+                }
+            });
+        }
+    }
 
     if (downloadBtn && downloadSpinner && videoUrlInput) {
-        downloadBtn.addEventListener('click', () => {
+        downloadBtn.addEventListener('click', async () => {
             const url = videoUrlInput.value.trim();
             if (!url) {
-                alert('Please paste a YouTube URL first.');
+                showToast('Please paste a video URL first.');
                 return;
             }
             
-            // Show loading spinner
+            // UI Loading State
+            if (resultContainer) resultContainer.classList.add('hidden');
             downloadSpinner.classList.remove('hidden');
             downloadBtn.setAttribute('disabled', 'true');
+            if (downloadBtnText) downloadBtnText.textContent = 'Fetching video details...';
             downloadBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
-            // Simulate download process (e.g., API call)
-            setTimeout(() => {
+            try {
+                // Using Cobalt API (Public instance)
+                const response = await fetch('https://api.cobalt.tools/api/json', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        vQuality: '720', // Standard quality for free
+                        filenameStyle: 'pretty'
+                    })
+                });
+
+                if (!response.ok) throw new Error('API request failed');
+
+                const data = await response.json();
+                
+                if (data.status === 'error') {
+                    throw new Error(data.text || 'Failed to fetch video');
+                }
+
+                if (data.url || data.picker) {
+                    renderResultCard(data);
+                } else {
+                    throw new Error('No download links found');
+                }
+
+            } catch (err) {
+                console.error('Fetch error:', err);
+                showToast('Error: ' + err.message);
+            } finally {
                 downloadSpinner.classList.add('hidden');
                 downloadBtn.removeAttribute('disabled');
+                if (downloadBtnText) downloadBtnText.textContent = 'Download';
                 downloadBtn.classList.remove('opacity-75', 'cursor-not-allowed');
-                alert('Download started for: ' + url);
-                // Here you would integrate your actual backend logic
-            }, 2000);
+            }
         });
     }
 
