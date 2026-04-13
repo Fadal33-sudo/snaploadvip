@@ -300,20 +300,25 @@ document.addEventListener('DOMContentLoaded', () => {
         downloadBtn.addEventListener('click', async () => {
             let url = videoUrlInput.value.trim();
             if (!url) {
-                showToast('Please paste a video URL first.');
+                showToast('Please paste a YouTube URL first.');
+                return;
+            }
+
+            // Restrict to YouTube only
+            const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
+            if (!isYouTube) {
+                showToast('Kaliya YouTube ayaa halkan laga soo dejin karaa.');
                 return;
             }
 
             // URL Cleaning Logic
             try {
                 const urlObj = new URL(url);
-                // Support short youtu.be links by keeping them or converting them
-                // The API usually handles both, but let's clean tracking params
                 const paramsToRemove = ['si', 'pp', 'feature', 'attr'];
                 paramsToRemove.forEach(p => urlObj.searchParams.delete(p));
                 url = urlObj.toString();
             } catch (e) {
-                // Not a valid URL, will likely fail in fetch
+                // Not a valid URL
             }
             
             // UI Loading State
@@ -325,7 +330,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // Using Auto Download All In One API via RapidAPI
-                const response = await fetch('https://auto-download-all-in-one.p.rapidapi.com/v1/get-info', {
+                // Updated endpoint to v1/social/autolink
+                const response = await fetch('https://auto-download-all-in-one.p.rapidapi.com/v1/social/autolink', {
                     method: 'POST',
                     headers: {
                         'x-rapidapi-key': CONFIG.RAPIDAPI_KEY,
