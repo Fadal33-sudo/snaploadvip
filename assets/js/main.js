@@ -329,36 +329,39 @@ document.addEventListener('DOMContentLoaded', () => {
             downloadBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
             try {
+                console.log("Starting API fetch for URL:", url);
+                
                 // Using Auto Download All In One API via RapidAPI
-                // Updated endpoint to v1/social/autolink
+                // Updated endpoint to v1/social/autolink as per strict requirement
                 const response = await fetch('https://auto-download-all-in-one.p.rapidapi.com/v1/social/autolink', {
                     method: 'POST',
                     headers: {
-                        'x-rapidapi-key': CONFIG.RAPIDAPI_KEY,
-                        'x-rapidapi-host': CONFIG.RAPIDAPI_HOST,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-RapidAPI-Key': CONFIG.RAPIDAPI_KEY,
+                        'X-RapidAPI-Host': CONFIG.RAPIDAPI_HOST
                     },
                     body: JSON.stringify({ url: url })
                 });
 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    console.error('API Error Response:', errorText);
-                    throw new Error('API request failed');
+                    console.error('API HTTP Error:', response.status, errorText);
+                    throw new Error(`API request failed with status ${response.status}`);
                 }
 
-                const data = await response.json();
-                console.log('API Response Data:', data);
+                const result = await response.json();
+                console.log("API Response:", result);
                 
-                if (!data || data.error || data.status === 'error') {
-                    console.error('API Logic Error:', data);
-                    throw new Error(data?.message || data?.text || 'Failed to fetch video');
+                if (!result || result.error || result.status === 'error') {
+                    console.error('API Logic Error:', result);
+                    throw new Error(result?.message || result?.text || 'Failed to fetch video');
                 }
 
-                renderResultCard(data);
+                // If successful, render the card
+                renderResultCard(result);
 
             } catch (err) {
-                console.error('Full Fetch Error:', err);
+                console.error('Full Fetch Error Trace:', err);
                 showToast('Fadlan hubi link-ga aad soo gelisay.');
             } finally {
                 downloadSpinner.classList.add('hidden');
