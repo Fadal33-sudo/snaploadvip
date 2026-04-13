@@ -229,30 +229,38 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!resultContainer) return;
         
         // Response structure for Auto Download All In One API
-        // It usually returns a 'video' object or direct links
-        const title = data.title || 'Video Result';
-        const thumbnail = data.thumbnail || 'https://via.placeholder.com/640x360?text=No+Thumbnail';
+        const title = data.title || data.filename || 'Video Result';
+        const thumbnail = data.thumbnail || (data.picker && data.picker[0] && data.picker[0].thumb) || 'https://via.placeholder.com/640x360?text=No+Thumbnail';
         
-        // Find MP4 and MP3 links from the 'medias' array or similar
         let videoUrl = '';
         let audioUrl = '';
 
+        // Check 'medias' array (standard for this API)
         if (data.medias && Array.isArray(data.medias)) {
-            // Find highest quality MP4
             const videoMedias = data.medias.filter(m => m.extension === 'mp4' && m.type === 'video');
             if (videoMedias.length > 0) {
                 videoUrl = videoMedias[0].url;
             }
 
-            // Find MP3
             const audioMedias = data.medias.filter(m => m.extension === 'mp3' || m.type === 'audio');
             if (audioMedias.length > 0) {
                 audioUrl = audioMedias[0].url;
             }
         }
+
+        // Check 'links' field if 'medias' didn't yield results
+        if (!videoUrl && data.links) {
+            if (Array.isArray(data.links)) {
+                const mp4 = data.links.find(l => l.extension === 'mp4' || l.format === 'mp4');
+                if (mp4) videoUrl = mp4.url || mp4.link;
+            } else if (typeof data.links === 'object') {
+                videoUrl = data.links.mp4 || data.links.video || data.links[0];
+                audioUrl = data.links.mp3 || data.links.audio;
+            }
+        }
         
-        // Fallback to provided URLs if medias is empty
-        if (!videoUrl) videoUrl = data.url || '#';
+        // Fallback to top-level fields
+        if (!videoUrl) videoUrl = data.url || data.link || '#';
         
         resultContainer.innerHTML = `
             <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 md:p-6 border border-gray-200 dark:border-gray-700 animate-fade-in">
@@ -290,17 +298,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (downloadBtn && downloadSpinner && videoUrlInput) {
         downloadBtn.addEventListener('click', async () => {
-            const url = videoUrlInput.value.trim();
+            let url = videoUrlInput.value.trim();
             if (!url) {
                 showToast('Please paste a video URL first.');
                 return;
+            }
+
+            // URL Cleaning Logic
+            try {
+                const urlObj = new URL(url);
+                // Support short youtu.be links by keeping them or converting them
+                // The API usually handles both, but let's clean tracking params
+                const paramsToRemove = ['si', 'pp', 'feature', 'attr'];
+                paramsToRemove.forEach(p => urlObj.searchParams.delete(p));
+                url = urlObj.toString();
+            } catch (e) {
+                // Not a valid URL, will likely fail in fetch
             }
             
             // UI Loading State
             if (resultContainer) resultContainer.classList.add('hidden');
             downloadSpinner.classList.remove('hidden');
             downloadBtn.setAttribute('disabled', 'true');
-            if (downloadBtnText) downloadBtnText.textContent = 'Processing...';
+            if (downloadBtnText) downloadBtnText.textContent = 'Raadinaya...';
             downloadBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
             try {
@@ -315,18 +335,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify({ url: url })
                 });
 
-                if (!response.ok) throw new Error('API request failed');
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API Error Response:', errorText);
+                    throw new Error('API request failed');
+                }
 
                 const data = await response.json();
+                console.log('API Response Data:', data);
                 
-                if (!data || data.error) {
-                    throw new Error(data?.message || 'Failed to fetch video');
+                if (!data || data.error || data.status === 'error') {
+                    console.error('API Logic Error:', data);
+                    throw new Error(data?.message || data?.text || 'Failed to fetch video');
                 }
 
                 renderResultCard(data);
 
             } catch (err) {
-                console.error('Fetch error:', err);
+                console.error('Full Fetch Error:', err);
                 showToast('Fadlan hubi link-ga aad soo gelisay.');
             } finally {
                 downloadSpinner.classList.add('hidden');
