@@ -82,9 +82,9 @@
                     Tools <i class="fa-solid fa-chevron-down text-sm"></i>
                 </button>
                 <div class="hidden flex-col pl-6 pr-4 py-2 space-y-2 dropdown-content">
-                    <a href="#" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-neonBlue">YouTube Downloader</a>
+                    <a href="index.html" id="ytDownloaderBtn" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-neonBlue">YouTube Downloader</a>
                     <a href="#" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-neonBlue">Shorts Downloader</a>
-                    <a href="#" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-neonBlue">Audio Extractor</a>
+                    <a href="#" id="audioExtractorBtn" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-neonBlue">Audio Extractor</a>
                 </div>
             </div>
 
@@ -126,7 +126,7 @@
     <!-- Main Content -->
     <main class="w-full max-w-4xl mx-auto px-4 py-12 flex flex-col items-center">
         <!-- Hero Section -->
-        <h1 class="text-3xl md:text-5xl font-bold text-center mb-10 text-black dark:text-white leading-tight">
+        <h1 id="mainHeading" class="text-3xl md:text-5xl font-bold text-center mb-10 text-black dark:text-white leading-tight">
             The Best 4K YouTube<br class="hidden md:block"/> Video Downloader with Audio
         </h1>
 
@@ -153,8 +153,39 @@
             </div>
         </div>
 
+        <!-- How to Use Section -->
+        <section class="mt-20 w-full">
+            <h2 class="text-2xl md:text-3xl font-bold text-center mb-10 text-black dark:text-white">How to Download Videos</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-soft dark:shadow-neonBlue/5 border border-gray-100 dark:border-gray-800 text-center transition-transform hover:-translate-y-1">
+                    <div class="w-16 h-16 bg-primary/10 dark:bg-neonBlue/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fa-solid fa-link text-2xl text-primary dark:text-neonBlue"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 dark:text-white">Step 1: Copy Video Link</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Find the video you want on YouTube and copy its URL from the browser or share button.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-soft dark:shadow-neonBlue/5 border border-gray-100 dark:border-gray-800 text-center transition-transform hover:-translate-y-1">
+                    <div class="w-16 h-16 bg-primary/10 dark:bg-neonBlue/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fa-solid fa-clipboard text-2xl text-primary dark:text-neonBlue"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 dark:text-white">Step 2: Paste into SnapLoad</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Return to SnapLoad and click the Paste button or use Ctrl+V to put the link in the input field.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-soft dark:shadow-neonBlue/5 border border-gray-100 dark:border-gray-800 text-center transition-transform hover:-translate-y-1">
+                    <div class="w-16 h-16 bg-primary/10 dark:bg-neonBlue/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fa-solid fa-download text-2xl text-primary dark:text-neonBlue"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 dark:text-white">Step 3: Download Your File</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Click Download and choose your preferred format (MP4 or MP3) to save the file to your device.</p>
+                </div>
+            </div>
+        </section>
+
         <!-- Description Section -->
-        <div class="mt-16 text-center md:text-left text-gray-700 dark:text-gray-300 text-lg leading-relaxed max-w-3xl">
+        <div class="mt-20 text-center md:text-left text-gray-700 dark:text-gray-300 text-lg leading-relaxed max-w-3xl">
             <p>Looking for the best way to save videos from YouTube? Our youtube video downloader is designed to make downloading simple, fast, and accessible on any device. Whether you want to save a music video, a tutorial, or your favorite YouTube Shorts, this tool allows you to download in multiple formats including MP4, MP3, HD, and even 4K quality.</p>
         </div>
     </main>

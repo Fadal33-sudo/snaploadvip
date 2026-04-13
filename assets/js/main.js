@@ -145,6 +145,39 @@ document.addEventListener('DOMContentLoaded', () => {
     if (closeMenuBtn) closeMenuBtn.addEventListener('click', closeSidebar);
     if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
 
+    // --- Navigation Logic ---
+    const mainHeading = document.getElementById('mainHeading');
+    const audioExtractorBtn = document.getElementById('audioExtractorBtn');
+    const ytDownloaderBtn = document.getElementById('ytDownloaderBtn');
+    let isAudioMode = false;
+
+    if (audioExtractorBtn) {
+        audioExtractorBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            isAudioMode = true;
+            if (mainHeading) mainHeading.textContent = 'YouTube to MP3 Converter';
+            if (videoUrlInput) videoUrlInput.placeholder = 'Paste YouTube link for MP3 extraction';
+            closeSidebar();
+            // Clear any previous results
+            if (resultContainer) resultContainer.classList.add('hidden');
+        });
+    }
+
+    if (ytDownloaderBtn) {
+        ytDownloaderBtn.addEventListener('click', (e) => {
+            // Default link behavior is fine since it's index.html, 
+            // but we can also just reset the UI if already on page
+            if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
+                e.preventDefault();
+                isAudioMode = false;
+                if (mainHeading) mainHeading.textContent = 'The Best 4K YouTube Video Downloader with Audio';
+                if (videoUrlInput) videoUrlInput.placeholder = 'Paste YouTube video link';
+                closeSidebar();
+                if (resultContainer) resultContainer.classList.add('hidden');
+            }
+        });
+    }
+
     // --- Sidebar Dropdowns ---
     const dropdowns = document.querySelectorAll('.sidebar-dropdown');
     dropdowns.forEach(dropdown => {
@@ -283,17 +316,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // Using Cobalt API (Public instance)
+                const fetchOptions = {
+                    url: url,
+                    vQuality: '720', // Standard quality for free
+                    filenameStyle: 'pretty'
+                };
+
+                // If in audio mode, force audio only
+                if (isAudioMode) {
+                    fetchOptions.isAudioOnly = true;
+                }
+
                 const response = await fetch('https://api.cobalt.tools/api/json', {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        url: url,
-                        vQuality: '720', // Standard quality for free
-                        filenameStyle: 'pretty'
-                    })
+                    body: JSON.stringify(fetchOptions)
                 });
 
                 if (!response.ok) throw new Error('API request failed');
