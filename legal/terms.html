@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service - YT Video Downloader</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#0056b3',
+                        primaryHover: '#004494',
+                        darkBg: '#0f0f0f',
+                        neonBlue: '#00d2ff',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-white text-black dark:bg-darkBg dark:text-white font-sans transition-colors duration-300 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="w-full bg-[#f8f5f5] dark:bg-black py-4 px-6 sticky top-0 z-40 shadow-sm transition-colors duration-300">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <a href="../index.html" class="flex items-center space-x-2">
+                <i class="fa-solid fa-clapperboard text-primary dark:text-neonBlue text-2xl"></i>
+                <span class="text-xl md:text-2xl font-bold text-primary dark:text-white">YT Video Downloader</span>
+            </a>
+            <button id="themeToggle" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+                <i class="fa-solid fa-moon dark:hidden"></i>
+                <i class="fa-solid fa-sun hidden dark:block text-neonBlue"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow w-full max-w-4xl mx-auto px-4 py-12">
+        <h1 class="text-3xl md:text-4xl font-bold mb-8">Terms of Service</h1>
+        <div class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 space-y-6">
+            <p>Last updated: April 2026</p>
+            <h2 class="text-2xl font-semibold text-black dark:text-white mt-8 mb-4">1. Terms</h2>
+            <p>By accessing the website at YT Video Downloader, you are agreeing to be bound by these terms of service.</p>
+            
+            <h2 class="text-2xl font-semibold text-black dark:text-white mt-8 mb-4">2. Use License</h2>
+            <p>Permission is granted to temporarily use our service for personal, non-commercial viewing only.</p>
+
+            <h2 class="text-2xl font-semibold text-black dark:text-white mt-8 mb-4">3. Disclaimer</h2>
+            <p>The materials on YT Video Downloader's website are provided on an 'as is' basis. We make no warranties, expressed or implied.</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full bg-gray-50 dark:bg-black py-8 mt-auto border-t border-gray-200 dark:border-gray-800 transition-colors duration-300">
+        <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-clapperboard text-primary dark:text-neonBlue"></i>
+                <span class="font-bold text-gray-800 dark:text-gray-200">YT Video Downloader</span>
+            </div>
+            <div class="flex space-x-6 text-sm text-gray-600 dark:text-gray-400">
+                <a href="privacy.html" class="hover:text-primary dark:hover:text-neonBlue transition-colors">Privacy Policy</a>
+                <a href="terms.html" class="hover:text-primary dark:hover:text-neonBlue transition-colors">Terms of Service</a>
+                <a href="dmca.html" class="hover:text-primary dark:hover:text-neonBlue transition-colors">DMCA</a>
+            </div>
+            <div class="text-sm text-gray-500 dark:text-gray-500">
+                &copy; 2026 YT Video Downloader. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Main JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('themeToggle');
+            const htmlElement = document.documentElement;
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                htmlElement.classList.add('dark');
+            }
+
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    htmlElement.classList.toggle('dark');
+                    const isDark = htmlElement.classList.contains('dark');
+                    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Success - YT Video Downloader</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#0056b3',
+                        primaryHover: '#004494',
+                        darkBg: '#0f0f0f',
+                        neonBlue: '#00d2ff',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-gray-50 text-black dark:bg-darkBg dark:text-white font-sans transition-colors duration-300 min-h-screen flex flex-col">
+
+    <!-- Simple Header -->
+    <header class="w-full py-4 px-6 absolute top-0 z-40">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="flex items-center space-x-2">
+                <i class="fa-solid fa-clapperboard text-primary dark:text-neonBlue text-2xl"></i>
+                <span class="text-xl md:text-2xl font-bold text-primary dark:text-white">YT Video Downloader</span>
+            </a>
+            <button id="themeToggle" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+                <i class="fa-solid fa-moon dark:hidden"></i>
+                <i class="fa-solid fa-sun hidden dark:block text-neonBlue"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center px-4 py-20">
+        <div class="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl dark:shadow-neonBlue/10 p-8 border border-gray-100 dark:border-gray-800 transition-colors duration-300 mt-12 text-center">
+            <div class="mb-6 inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
+                <i class="fa-solid fa-check text-4xl"></i>
+            </div>
+            
+            <h1 class="text-3xl font-bold text-black dark:text-white mb-4">Registration Successful!</h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-8 text-lg">
+                Your account has been created successfully. Please check your inbox and click the confirmation link to activate your account.
+            </p>
+
+            <div class="space-y-4">
+                <a href="login.html" class="block w-full bg-primary hover:bg-primaryHover text-white font-semibold text-lg py-3 rounded-lg transition-colors">
+                    Go to Login
+                </a>
+                <a href="index.html" class="block w-full text-primary hover:text-primaryHover dark:text-neonBlue dark:hover:text-blue-400 font-medium">
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Main JS -->
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

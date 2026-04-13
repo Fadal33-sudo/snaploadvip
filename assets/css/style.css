@@ -1,0 +1,21 @@
+/* Custom Styles */
+
+/* Hide scrollbar for cleaner look on sidebar */
+#sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+#sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+#sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 10px;
+}
+.dark #sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(75, 85, 99, 0.5);
+}
+
+/* Dropdown animation */
+.dropdown-content {
+    transition: all 0.3s ease-in-out;
+}
