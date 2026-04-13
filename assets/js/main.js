@@ -505,37 +505,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let deferredPrompt;
+    let autoDismissTimeout;
     const pwaInstallBanner = document.createElement('div');
     pwaInstallBanner.id = 'pwaInstallBanner';
     pwaInstallBanner.innerHTML = `
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-primary/20">
-                <i class="fa-solid fa-clapperboard text-white text-xl"></i>
+        <div class="flex flex-col items-center text-center">
+            <div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-4 shadow-xl shadow-primary/20 transform -rotate-6">
+                <i class="fa-solid fa-clapperboard text-white text-3xl"></i>
             </div>
-            <div class="flex-grow">
-                <p class="text-sm font-semibold text-black dark:text-white leading-tight mb-1">Install SnapLoad VIP</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Ku dar SnapLoad shaashaddaada (Install App) si aad ugu isticmaasho sidii barnaamij ahaan.</p>
+            <h3 class="text-xl font-bold text-black dark:text-white mb-2">Ku dar SnapLoad VIP</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-6 px-2">Ma rabtaa inaad u isticmaasho sidii App ahaan?</p>
+            
+            <div class="flex flex-col w-full gap-3">
+                <button id="pwaInstallBtn" class="w-full py-3 bg-primary text-white dark:bg-neonBlue dark:text-black rounded-xl font-bold shadow-lg shadow-primary/25 dark:shadow-neonBlue/10 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
+                    Install
+                </button>
+                <button id="pwaCloseBtn" class="w-full py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors">
+                    Cancel
+                </button>
             </div>
-        </div>
-        <div class="flex gap-2 mt-4">
-            <button id="pwaCloseBtn" class="flex-1 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">Later</button>
-            <button id="pwaInstallBtn" class="flex-[2] py-2 text-sm font-bold bg-primary text-white dark:bg-neonBlue dark:text-black rounded-lg hover:bg-primaryHover transition-colors">Install</button>
         </div>
     `;
     document.body.appendChild(pwaInstallBanner);
 
     window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent the mini-infobar from appearing on mobile
         e.preventDefault();
-        // Stash the event so it can be triggered later.
         deferredPrompt = e;
         console.log('beforeinstallprompt event fired');
     });
 
     function showPWAInstallPrompt() {
         if (deferredPrompt && !localStorage.getItem('pwa_dismissed')) {
+            pwaInstallBanner.classList.remove('hide');
             pwaInstallBanner.classList.add('show');
+            
+            // Auto-dismiss after 3 seconds if no interaction
+            autoDismissTimeout = setTimeout(() => {
+                hidePWAInstallPrompt();
+            }, 3000);
         }
+    }
+
+    function hidePWAInstallPrompt() {
+        pwaInstallBanner.classList.remove('show');
+        pwaInstallBanner.classList.add('hide');
+        clearTimeout(autoDismissTimeout);
     }
 
     const pwaInstallBtn = document.getElementById('pwaInstallBtn');
@@ -543,8 +557,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (pwaInstallBtn) {
         pwaInstallBtn.addEventListener('click', async () => {
+            clearTimeout(autoDismissTimeout);
             if (!deferredPrompt) return;
-            pwaInstallBanner.classList.remove('show');
+            hidePWAInstallPrompt();
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
             console.log(`User response to the install prompt: ${outcome}`);
@@ -554,9 +569,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (pwaCloseBtn) {
         pwaCloseBtn.addEventListener('click', () => {
-            pwaInstallBanner.classList.remove('show');
+            hidePWAInstallPrompt();
             // Don't show again for 7 days
             localStorage.setItem('pwa_dismissed', Date.now());
         });
     }
+
 });

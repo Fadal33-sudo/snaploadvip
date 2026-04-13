@@ -37,27 +37,40 @@
     animation: fadeIn 0.4s ease-out forwards;
 }
 
-/* PWA Install Banner */
+/* PWA Install Modal (Center) */
 #pwaInstallBanner {
     position: fixed;
-    bottom: 20px;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%) translateY(100px);
+    transform: translate(-50%, -50%) scale(0.9);
     width: 90%;
-    max-width: 450px;
-    background: white;
-    padding: 16px;
-    border-radius: 16px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 24px;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     z-index: 1000;
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0;
+    visibility: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .dark #pwaInstallBanner {
-    background: #1a1a1a;
-    border: 1px solid #333;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    background: rgba(15, 15, 15, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
 #pwaInstallBanner.show {
-    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
 }
+#pwaInstallBanner.hide {
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, -40%) scale(0.95);
+}
+
 
