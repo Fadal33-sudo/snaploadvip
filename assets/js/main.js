@@ -92,11 +92,71 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!sb) return null;
         try {
             const { data } = await sb.auth.getUser();
-            return data?.user || null;
+            if (!data?.user) return null;
+            
+            // Fetch profile for VIP status
+            const { data: profile } = await sb
+                .from('profiles')
+                .select('*')
+                .eq('id', data.user.id)
+                .single();
+            
+            return { ...data.user, profile };
         } catch {
             return null;
         }
     }
+
+    // --- Loading Overlay Logic ---
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const adContainer = document.getElementById('adContainer');
+    const adTimer = document.getElementById('adTimer');
+    let messageInterval;
+
+    const loadingMessages = [
+        "Checking VIP status...",
+        "Fetching YouTube details...",
+        "Optimizing download link...",
+        "Scanning for 4K quality...",
+        "Preparing your file..."
+    ];
+
+    function showLoading(isVip = false) {
+        if (!loadingOverlay) return;
+        
+        loadingOverlay.classList.remove('hidden');
+        loadingOverlay.classList.add('show');
+        
+        let msgIndex = 0;
+        loadingMessage.textContent = loadingMessages[msgIndex];
+        
+        messageInterval = setInterval(() => {
+            msgIndex = (msgIndex + 1) % loadingMessages.length;
+            loadingMessage.textContent = loadingMessages[msgIndex];
+        }, 800);
+
+        if (!isVip && adContainer) {
+            adContainer.classList.remove('hidden');
+            let timeLeft = 3;
+            adTimer.textContent = timeLeft;
+            const timerInterval = setInterval(() => {
+                timeLeft--;
+                adTimer.textContent = timeLeft;
+                if (timeLeft <= 0) clearInterval(timerInterval);
+            }, 1000);
+        } else if (adContainer) {
+            adContainer.classList.add('hidden');
+        }
+    }
+
+    function hideLoading() {
+        if (!loadingOverlay) return;
+        clearInterval(messageInterval);
+        loadingOverlay.classList.remove('show');
+        loadingOverlay.classList.add('hidden');
+    }
+
 
     // --- Dark Mode Toggle ---
     const themeToggle = document.getElementById('themeToggle');
@@ -225,42 +285,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadSpinner = document.getElementById('downloadSpinner');
     const resultContainer = document.getElementById('resultContainer');
 
-    function renderResultCard(data) {
+    function renderResultCard(result, isVip = false) {
         if (!resultContainer) return;
         
         // Response structure for Auto Download All In One API
-        const title = data.title || data.filename || 'Video Result';
-        const thumbnail = data.thumbnail || (data.picker && data.picker[0] && data.picker[0].thumb) || 'https://via.placeholder.com/640x360?text=No+Thumbnail';
+        const title = result.title || result.filename || 'Video Result';
+        const thumbnail = result.thumbnail || (result.picker && result.picker[0] && result.picker[0].thumb) || 'https://via.placeholder.com/640x360?text=No+Thumbnail';
         
         let videoUrl = '';
         let audioUrl = '';
 
         // Check 'medias' array (standard for this API)
-        if (data.medias && Array.isArray(data.medias)) {
-            const videoMedias = data.medias.filter(m => m.extension === 'mp4' && m.type === 'video');
+        if (result.medias && Array.isArray(result.medias)) {
+            const videoMedias = result.medias.filter(m => m.extension === 'mp4' && m.type === 'video');
             if (videoMedias.length > 0) {
+                // If VIP, we could potentially pick higher quality if available in response
                 videoUrl = videoMedias[0].url;
             }
 
-            const audioMedias = data.medias.filter(m => m.extension === 'mp3' || m.type === 'audio');
+            const audioMedias = result.medias.filter(m => m.extension === 'mp3' || m.type === 'audio');
             if (audioMedias.length > 0) {
                 audioUrl = audioMedias[0].url;
             }
         }
 
         // Check 'links' field if 'medias' didn't yield results
-        if (!videoUrl && data.links) {
-            if (Array.isArray(data.links)) {
-                const mp4 = data.links.find(l => l.extension === 'mp4' || l.format === 'mp4');
+        if (!videoUrl && result.links) {
+            if (Array.isArray(result.links)) {
+                const mp4 = result.links.find(l => l.extension === 'mp4' || l.format === 'mp4');
                 if (mp4) videoUrl = mp4.url || mp4.link;
-            } else if (typeof data.links === 'object') {
-                videoUrl = data.links.mp4 || data.links.video || data.links[0];
-                audioUrl = data.links.mp3 || data.links.audio;
+            } else if (typeof result.links === 'object') {
+                videoUrl = result.links.mp4 || result.links.video || result.links[0];
+                audioUrl = result.links.mp3 || result.links.audio;
             }
         }
         
         // Fallback to top-level fields
-        if (!videoUrl) videoUrl = data.url || data.link || '#';
+        if (!videoUrl) videoUrl = result.url || result.link || '#';
         
         resultContainer.innerHTML = `
             <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 md:p-6 border border-gray-200 dark:border-gray-700 animate-fade-in">
@@ -273,20 +334,38 @@ document.addEventListener('DOMContentLoaded', () => {
                     <!-- Details & Actions -->
                     <div class="flex-grow flex flex-col justify-between">
                         <div>
-                            <h3 class="text-xl font-bold text-black dark:text-white line-clamp-2 mb-4">${title}</h3>
+                            <h3 class="text-xl font-bold text-black dark:text-white line-clamp-2 mb-2">${title}</h3>
+                            ${!isVip ? `
+                            <p class="text-xs text-gray-500 mb-4 flex items-center gap-1">
+                                <i class="fa-solid fa-circle-info"></i> Limited to 720p for Free users
+                            </p>
+                            ` : `
+                            <p class="text-xs text-green-500 mb-4 flex items-center gap-1">
+                                <i class="fa-solid fa-crown"></i> VIP Unlocked: High Quality Available
+                            </p>
+                            `}
                         </div>
                         
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-                            ${!isAudioMode ? `
-                            <a href="${videoUrl}" target="_blank" download class="flex items-center justify-center gap-2 bg-primary hover:bg-primaryHover text-white font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm">
-                                <i class="fa-solid fa-video"></i>
-                                Download MP4
+                        <div class="flex flex-col gap-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                ${!isAudioMode ? `
+                                <a href="${videoUrl}" target="_blank" download class="flex items-center justify-center gap-2 bg-primary hover:bg-primaryHover text-white font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm">
+                                    <i class="fa-solid fa-video"></i>
+                                    Download MP4
+                                </a>
+                                ` : ''}
+                                <a href="${audioUrl || '#'}" target="_blank" download class="flex items-center justify-center gap-2 border-2 border-primary text-primary dark:border-neonBlue dark:text-neonBlue hover:bg-primary hover:text-white dark:hover:bg-neonBlue dark:hover:text-black font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm ${!audioUrl ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}">
+                                    <i class="fa-solid fa-music"></i>
+                                    Download MP3
+                                </a>
+                            </div>
+                            
+                            ${!isVip ? `
+                            <a href="vip.html" class="w-full py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-center rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-crown"></i>
+                                Download in 4K? Upgrade to VIP
                             </a>
                             ` : ''}
-                            <a href="${audioUrl || '#'}" target="_blank" download class="flex items-center justify-center gap-2 border-2 border-primary text-primary dark:border-neonBlue dark:text-neonBlue hover:bg-primary hover:text-white dark:hover:bg-neonBlue dark:hover:text-black font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm ${!audioUrl ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}">
-                                <i class="fa-solid fa-music"></i>
-                                Download MP3
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -296,7 +375,8 @@ document.addEventListener('DOMContentLoaded', () => {
         resultContainer.classList.remove('hidden');
     }
 
-    if (downloadBtn && downloadSpinner && videoUrlInput) {
+
+    if (downloadBtn && videoUrlInput) {
         downloadBtn.addEventListener('click', async () => {
             let url = videoUrlInput.value.trim();
             if (!url) {
@@ -321,18 +401,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Not a valid URL
             }
             
+            // Check VIP status
+            const user = await getCurrentUser();
+            const isVip = user?.profile?.plan === 'pro' || user?.profile?.plan === 'lifetime' || user?.profile?.is_vip === true;
+
             // UI Loading State
             if (resultContainer) resultContainer.classList.add('hidden');
-            downloadSpinner.classList.remove('hidden');
-            downloadBtn.setAttribute('disabled', 'true');
-            if (downloadBtnText) downloadBtnText.textContent = 'Raadinaya...';
-            downloadBtn.classList.add('opacity-75', 'cursor-not-allowed');
+            showLoading(isVip);
+
+            // For Free users, wait 3 seconds (simulating ad time)
+            if (!isVip) {
+                await new Promise(resolve => setTimeout(resolve, 3000));
+            }
 
             try {
                 console.log("Starting API fetch for URL:", url);
                 
                 // Using Auto Download All In One API via RapidAPI
-                // Updated endpoint to v1/social/autolink as per strict requirement
                 const response = await fetch('https://auto-download-all-in-one.p.rapidapi.com/v1/social/autolink', {
                     method: 'POST',
                     headers: {
@@ -358,25 +443,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // If successful, render the card
-                renderResultCard(result);
+                renderResultCard(result, isVip);
 
             } catch (err) {
                 console.error('Full Fetch Error Trace:', err);
                 showToast('Fadlan hubi link-ga aad soo gelisay.');
             } finally {
-                downloadSpinner.classList.add('hidden');
-                downloadBtn.removeAttribute('disabled');
-                if (downloadBtnText) downloadBtnText.textContent = 'Download';
-                downloadBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                hideLoading();
             }
         });
     }
 
+
     const freePlanStartBtn = document.getElementById('freePlanStartBtn');
     if (freePlanStartBtn) {
         freePlanStartBtn.addEventListener('click', async () => {
+            showLoading(false); // Free user starts here
+            
             const user = await getCurrentUser();
+            
+            // Artificial delay for "Checking VIP status..." etc.
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
             if (!user) {
+                hideLoading();
                 sessionStorage.setItem('ytvd_login_notice', 'Please log in or connect your Google account to use the Free plan.');
                 sessionStorage.setItem('ytvd_pending_plan', 'free');
                 sessionStorage.setItem('ytvd_post_login_redirect', 'index.html');
@@ -387,9 +477,12 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem(PLAN_KEY, 'free');
             localStorage.setItem('ytvd_free_active', '1');
             sessionStorage.setItem('ytvd_show_free_notice', '1');
+            
+            hideLoading();
             window.location.href = 'index.html';
         });
     }
+
 
     // --- PayPal Integration ---
     async function sendWelcomeEmail(user, planName, amount, transactionId) {
@@ -423,13 +516,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const lifetimeContainer = document.getElementById('paypal-button-container-lifetime');
 
         const handlePlanClick = async (planType, btn, container) => {
+            showLoading(false); // Initial check
             const user = await getCurrentUser();
+            
+            // Artificial delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
             if (!user) {
+                hideLoading();
                 sessionStorage.setItem('ytvd_login_notice', 'Please log in to your account to purchase a VIP plan.');
                 sessionStorage.setItem('ytvd_post_login_redirect', 'vip.html');
                 window.location.href = 'login.html';
                 return;
             }
+            
+            hideLoading();
             btn.classList.add('hidden');
             container.classList.remove('hidden');
         };
