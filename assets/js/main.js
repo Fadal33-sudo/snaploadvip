@@ -13,7 +13,7 @@ const CONFIG = {
 
     // RapidAPI Configuration
     RAPIDAPI_KEY: "3636ef70f7msh2f51f6c81c32753p1b115ejsn96bd79a11c4a",
-    RAPIDAPI_HOST: "youtube-video-fast-downloader-24-7.p.rapidapi.com"
+    RAPIDAPI_HOST: "youtube-video-download-info.p.rapidapi.com" // Beddelnay host-ka
 };
 
 // Make CONFIG globally available for supabaseClient.js if it runs later (not the case here but good for consistency)
@@ -267,12 +267,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderResultCard(result, isVip = false) {
         if (!resultContainer) return;
         
-        // Response structure for YouTube Media Downloader API
-        const title = result.title || result.filename || 'Video Result';
+        // Response structure for YouTube Video and Shorts Downloader API
+        const title = result.title || result.video_title || result.filename || 'Video Result';
         
-        // Handle thumbnails from different API structures
+        // Handle thumbnails
         let thumbnail = 'https://via.placeholder.com/640x360?text=No+Thumbnail';
-        if (result.thumbnails && Array.isArray(result.thumbnails) && result.thumbnails.length > 0) {
+        if (result.thumbnail_url) {
+            thumbnail = result.thumbnail_url;
+        } else if (result.thumbnails && Array.isArray(result.thumbnails) && result.thumbnails.length > 0) {
             thumbnail = result.thumbnails[result.thumbnails.length - 1].url || result.thumbnails[0].url;
         } else if (result.thumbnail) {
             thumbnail = result.thumbnail;
@@ -283,47 +285,33 @@ document.addEventListener('DOMContentLoaded', () => {
         let videoUrl = '';
         let audioUrl = '';
 
-        // Handle YouTube Media Downloader structure
-        if (result.videos && result.videos.items && Array.isArray(result.videos.items)) {
-            // Find 720p or highest available for Free, or highest for VIP
-            const videoItems = result.videos.items;
-            if (isVip) {
-                videoUrl = videoItems[0].url; // Usually sorted by quality desc
-            } else {
-                const freeVideo = videoItems.find(v => v.quality === '720p' || v.quality === '480p') || videoItems[videoItems.length - 1];
-                videoUrl = freeVideo.url;
+        // Try to find video and audio URLs from a generic 'formats' or 'download_links' array
+        const formats = result.formats || result.download_links || [];
+
+        if (formats.length > 0) {
+            // Prioritize MP4 video
+            const videoFormats = formats.filter(f => f.type === 'video' && f.extension === 'mp4');
+            if (videoFormats.length > 0) {
+                if (isVip) {
+                    // For VIP, get the highest quality MP4 video
+                    videoUrl = videoFormats.sort((a, b) => (parseInt(b.quality) || 0) - (parseInt(a.quality) || 0))[0].url;
+                } else {
+                    // For Free, prioritize 720p, then 480p, otherwise the highest available MP4
+                    const freeVideo = videoFormats.find(f => f.quality === '720p') || 
+                                      videoFormats.find(f => f.quality === '480p') || 
+                                      videoFormats.sort((a, b) => (parseInt(b.quality) || 0) - (parseInt(a.quality) || 0))[0];
+                    videoUrl = freeVideo ? freeVideo.url : '';
+                }
+            }
+
+            // Get MP3 audio
+            const audioFormats = formats.filter(f => f.type === 'audio' && f.extension === 'mp3');
+            if (audioFormats.length > 0) {
+                audioUrl = audioFormats[0].url;
             }
         }
         
-        if (result.audios && result.audios.items && Array.isArray(result.audios.items)) {
-            audioUrl = result.audios.items[0].url;
-        }
-
-        // Check 'medias' array (fallback for previous API or similar ones)
-        if (!videoUrl && result.medias && Array.isArray(result.medias)) {
-            const videoMedias = result.medias.filter(m => m.extension === 'mp4' && m.type === 'video');
-            if (videoMedias.length > 0) {
-                videoUrl = videoMedias[0].url;
-            }
-
-            const audioMedias = result.medias.filter(m => m.extension === 'mp3' || m.type === 'audio');
-            if (audioMedias.length > 0) {
-                audioUrl = audioMedias[0].url;
-            }
-        }
-
-        // Check 'links' field fallback
-        if (!videoUrl && result.links) {
-            if (Array.isArray(result.links)) {
-                const mp4 = result.links.find(l => l.extension === 'mp4' || l.format === 'mp4');
-                if (mp4) videoUrl = mp4.url || mp4.link;
-            } else if (typeof result.links === 'object') {
-                videoUrl = result.links.mp4 || result.links.video || result.links[0];
-                audioUrl = result.links.mp3 || result.links.audio;
-            }
-        }
-        
-        // Fallback to top-level fields
+        // Fallback to top-level fields if no specific videoUrl found
         if (!videoUrl) videoUrl = result.url || result.link || '#';
         
         resultContainer.innerHTML = `
@@ -351,16 +339,24 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         <div class="flex flex-col gap-3">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                ${!isAudioMode ? `
+                                ${!isAudioMode && videoUrl && videoUrl !== '#' ? `
                                 <a href="${videoUrl}" target="_blank" download class="flex items-center justify-center gap-2 bg-primary hover:bg-primaryHover text-white font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm">
                                     <i class="fa-solid fa-video"></i>
                                     Download MP4
                                 </a>
-                                ` : ''}
-                                <a href="${audioUrl || '#'}" target="_blank" download class="flex items-center justify-center gap-2 border-2 border-primary text-primary hover:bg-primary hover:text-white font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm ${!audioUrl ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}">
+                                ` : `<button disabled class="flex items-center justify-center gap-2 bg-gray-300 text-gray-600 font-semibold py-3 px-4 rounded-lg cursor-not-allowed">
+                                        <i class="fa-solid fa-video"></i>
+                                        MP4 Not Available
+                                    </button>`}
+                                ${audioUrl && audioUrl !== '#' ? `
+                                <a href="${audioUrl}" target="_blank" download class="flex items-center justify-center gap-2 border-2 border-primary text-primary hover:bg-primary hover:text-white font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm">
                                     <i class="fa-solid fa-music"></i>
                                     Download MP3
                                 </a>
+                                ` : `<button disabled class="flex items-center justify-center gap-2 border-2 border-gray-300 text-gray-600 font-semibold py-3 px-4 rounded-lg cursor-not-allowed">
+                                        <i class="fa-solid fa-music"></i>
+                                        MP3 Not Available
+                                    </button>`}
                             </div>
                             
                             ${!isVip ? `

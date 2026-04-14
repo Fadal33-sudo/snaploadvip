@@ -18,18 +18,17 @@ const YouTubeAPI = {
     },
 
     async fetchVideoInfo(url) {
-        const host = 'youtube-video-fast-downloader-24-7.p.rapidapi.com';
-        const key = '3636ef70f7msh2f51f6c81c32753p1b115ejsn96bd79a11c4a';
+        const host = window.CONFIG.RAPIDAPI_HOST;
+        const key = window.CONFIG.RAPIDAPI_KEY;
         
-        // Hel Video ID-ga
         const videoId = this.extractVideoId(url);
         
         if (!videoId) {
             throw new Error("Lama heli karo Video ID-ga link-ga.");
         }
 
-        // Sida ay API-gani u shaqayso: wuxuu u baahan yahay Video ID-ga, ma aha URL-ka oo dhan
-        const apiUrl = `https://${host}/get-videos-info/${videoId}?response_mode=default`;
+        // Inta badan API-yadan waxay isticmaalaan endpoint-kan
+        const apiUrl = `https://${host}/dl?id=${videoId}`;
         
         try {
             const response = await fetch(apiUrl, {
@@ -42,7 +41,7 @@ const YouTubeAPI = {
 
             if (!response.ok) {
                 const errorData = await response.text();
-                console.error('API Error Response (raw):', errorData); // Log raw error response
+                console.error('API Error Response (raw):', errorData);
                 let errorMessage = `API error: ${response.status}`;
                 try {
                     const errorJson = JSON.parse(errorData);
