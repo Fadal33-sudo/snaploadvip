@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showToast(message) {
         const toast = document.createElement('div');
-        toast.className = 'fixed left-1/2 -translate-x-1/2 top-5 z-[60] w-[calc(100%-2rem)] max-w-xl rounded-xl border border-primary/20 bg-white/95 text-black shadow-xl backdrop-blur px-4 py-3 dark:bg-gray-900/95 dark:text-white dark:border-neonBlue/30 transition-opacity duration-300';
+        toast.className = 'fixed left-1/2 -translate-x-1/2 top-5 z-[60] w-[calc(100%-2rem)] max-w-xl rounded-xl border border-primary/20 bg-white/95 text-black shadow-xl backdrop-blur px-4 py-3 transition-opacity duration-300';
         toast.textContent = message;
         document.body.appendChild(toast);
 
@@ -110,8 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Loading Overlay Logic ---
     const loadingOverlay = document.getElementById('loadingOverlay');
     const loadingMessage = document.getElementById('loadingMessage');
-    const adContainer = document.getElementById('adContainer');
-    const adTimer = document.getElementById('adTimer');
+    const adContainer = document.getElementById('adContainer'); // Re-added adContainer reference
+    const adTimer = document.getElementById('adTimer'); // Re-added adTimer reference
     let messageInterval;
 
     const loadingMessages = [
@@ -136,6 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingMessage.textContent = loadingMessages[msgIndex];
         }, 800);
 
+        // Ad logic for Free users
         if (!isVip && adContainer) {
             adContainer.classList.remove('hidden');
             let timeLeft = 3;
@@ -155,28 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(messageInterval);
         loadingOverlay.classList.remove('show');
         loadingOverlay.classList.add('hidden');
+        if (adContainer) adContainer.classList.add('hidden'); // Ensure ad is hidden on hide
     }
 
-
-    // --- Dark Mode Toggle ---
-    const themeToggle = document.getElementById('themeToggle');
-    const htmlElement = document.documentElement;
-    
-    // Check for saved theme preference or system preference
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-        htmlElement.classList.add('dark');
-    }
-
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            htmlElement.classList.toggle('dark');
-            const isDark = htmlElement.classList.contains('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        });
-    }
 
     // --- Sidebar Toggle ---
     const menuBtn = document.getElementById('menuBtn');
@@ -324,17 +306,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!videoUrl) videoUrl = result.url || result.link || '#';
         
         resultContainer.innerHTML = `
-            <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 md:p-6 border border-gray-200 dark:border-gray-700 animate-fade-in">
+            <div class="bg-gray-50 rounded-xl p-4 md:p-6 border border-gray-200 animate-fade-in">
                 <div class="flex flex-col md:flex-row gap-6">
                     <!-- Thumbnail -->
                     <div class="w-full md:w-1/3 shrink-0">
-                        <img src="${thumbnail}" alt="Thumbnail" class="w-full h-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+                        <img src="${thumbnail}" alt="Thumbnail" class="w-full h-auto rounded-lg shadow-md border border-gray-200">
                     </div>
                     
                     <!-- Details & Actions -->
                     <div class="flex-grow flex flex-col justify-between">
                         <div>
-                            <h3 class="text-xl font-bold text-black dark:text-white line-clamp-2 mb-2">${title}</h3>
+                            <h3 class="text-xl font-bold text-black line-clamp-2 mb-2">${title}</h3>
                             ${!isVip ? `
                             <p class="text-xs text-gray-500 mb-4 flex items-center gap-1">
                                 <i class="fa-solid fa-circle-info"></i> Limited to 720p for Free users
@@ -354,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     Download MP4
                                 </a>
                                 ` : ''}
-                                <a href="${audioUrl || '#'}" target="_blank" download class="flex items-center justify-center gap-2 border-2 border-primary text-primary dark:border-neonBlue dark:text-neonBlue hover:bg-primary hover:text-white dark:hover:bg-neonBlue dark:hover:text-black font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm ${!audioUrl ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}">
+                                <a href="${audioUrl || '#'}" target="_blank" download class="flex items-center justify-center gap-2 border-2 border-primary text-primary hover:bg-primary hover:text-white font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm ${!audioUrl ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}">
                                     <i class="fa-solid fa-music"></i>
                                     Download MP3
                                 </a>
@@ -649,14 +631,14 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-4 shadow-xl shadow-primary/20 transform -rotate-6">
                 <i class="fa-solid fa-clapperboard text-white text-3xl"></i>
             </div>
-            <h3 class="text-xl font-bold text-black dark:text-white mb-2">Ku dar SnapLoad VIP</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mb-6 px-2">Ma rabtaa inaad u isticmaasho sidii App ahaan?</p>
+            <h3 class="text-xl font-bold text-black mb-2">Ku dar SnapLoad VIP</h3>
+            <p class="text-sm text-gray-600 mb-6 px-2">Ma rabtaa inaad u isticmaasho sidii App ahaan?</p>
             
             <div class="flex flex-col w-full gap-3">
-                <button id="pwaInstallBtn" class="w-full py-3 bg-primary text-white dark:bg-neonBlue dark:text-black rounded-xl font-bold shadow-lg shadow-primary/25 dark:shadow-neonBlue/10 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
+                <button id="pwaInstallBtn" class="w-full py-3 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/25 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
                     Install
                 </button>
-                <button id="pwaCloseBtn" class="w-full py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors">
+                <button id="pwaCloseBtn" class="w-full py-2 text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors">
                     Cancel
                 </button>
             </div>

@@ -1,20 +1,31 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VIP Pricing - YT Video Downloader</title>
+    <title>VIP Plans - YT Video Downloader</title>
     
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0056b3">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SnapLoad">
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/192x192/0056b3/ffffff?text=SL">
+    
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
@@ -23,293 +34,252 @@
                     colors: {
                         primary: '#0056b3',
                         primaryHover: '#004494',
-                        darkBg: '#0f0f0f',
+                        lightBg: '#F8F9FA',
+                        darkText: '#1A1A1A',
                         neonBlue: '#00d2ff',
-                        gold: '#FFD700',
                     }
                 }
             }
         }
     </script>
     
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body class="bg-white text-black dark:bg-darkBg dark:text-white font-sans transition-colors duration-300">
+<body class="bg-[#F8F9FA] text-[#1A1A1A] font-sans transition-colors duration-300">
 
-    <header class="w-full bg-[#f8f5f5] dark:bg-black py-4 px-6 sticky top-0 z-40 shadow-sm transition-colors duration-300">
+    <!-- Header -->
+    <header class="w-full bg-white py-4 px-6 sticky top-0 z-40 shadow-sm border-b border-gray-100">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-clapperboard text-primary dark:text-neonBlue text-2xl"></i>
-                <span class="text-xl md:text-2xl font-bold text-primary dark:text-white">YT Video Downloader</span>
-            </div>
+            <a href="index.html" class="flex items-center space-x-2">
+                <i class="fa-solid fa-clapperboard text-primary text-2xl"></i>
+                <span class="text-xl md:text-2xl font-bold text-primary">YT Video Downloader</span>
+            </a>
             <div class="flex items-center space-x-4">
-                <button id="themeToggle" class="text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
-                    <i class="fa-solid fa-moon dark:hidden"></i>
-                    <i class="fa-solid fa-sun hidden dark:block text-neonBlue"></i>
-                </button>
-                <button id="menuBtn" class="text-2xl text-black dark:text-white">
+                <button id="menuBtn" class="text-2xl text-black">
                     <i class="fa-solid fa-bars"></i>
                 </button>
             </div>
         </div>
     </header>
 
-    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-50 hidden opacity-0 transition-opacity duration-300"></div>
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/30 z-50 hidden opacity-0 transition-opacity duration-300"></div>
 
-    <aside id="sidebar" class="fixed top-0 right-0 w-64 md:w-80 h-full bg-white dark:bg-darkBg z-50 transform translate-x-full transition-transform duration-300 shadow-2xl overflow-y-auto">
-        <div class="p-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-800">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 right-0 w-64 md:w-80 h-full bg-white z-50 transform translate-x-full transition-transform duration-300 shadow-2xl overflow-y-auto">
+        <div class="p-4 flex justify-between items-center border-b border-gray-100">
             <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-clapperboard text-primary dark:text-neonBlue text-xl"></i>
-                <span class="font-bold text-primary dark:text-white">Menu</span>
+                <i class="fa-solid fa-clapperboard text-primary text-xl"></i>
+                <span class="font-bold text-primary">Menu</span>
             </div>
-            <button id="closeMenuBtn" class="text-2xl text-black dark:text-white hover:text-primary dark:hover:text-neonBlue">
+            <button id="closeMenuBtn" class="text-2xl text-black hover:text-primary">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
         <nav class="p-4 flex flex-col space-y-2">
-            <a href="index.html" class="block py-3 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-lg font-medium text-black dark:text-white transition-colors">Home</a>
-            <a href="#" class="block py-3 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-lg font-medium text-black dark:text-white transition-colors">Blogs</a>
+            <a href="index.html" class="block py-3 px-4 rounded-lg hover:bg-gray-50 text-lg font-medium text-black transition-colors">Home</a>
+            <a href="#" class="block py-3 px-4 rounded-lg hover:bg-gray-50 text-lg font-medium text-black transition-colors">Blogs</a>
             
+            <!-- Tools Dropdown -->
             <div class="sidebar-dropdown">
-                <button class="w-full text-left py-3 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-lg font-medium flex justify-between items-center text-black dark:text-white transition-colors">
+                <button class="w-full text-left py-3 px-4 rounded-lg hover:bg-gray-50 text-lg font-medium flex justify-between items-center text-black transition-colors">
                     Tools <i class="fa-solid fa-chevron-down text-sm"></i>
                 </button>
                 <div class="hidden flex-col pl-6 pr-4 py-2 space-y-2 dropdown-content">
-                    <a href="#" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-neonBlue">YouTube Downloader</a>
-                    <a href="#" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-neonBlue">Shorts Downloader</a>
-                    <a href="#" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-neonBlue">Audio Extractor</a>
+                    <a href="index.html" class="block py-2 text-gray-600 hover:text-primary">YouTube Downloader</a>
+                    <a href="#" class="block py-2 text-gray-600 hover:text-primary">Audio Extractor</a>
                 </div>
             </div>
 
+            <!-- Legal Dropdown -->
             <div class="sidebar-dropdown">
-                <button class="w-full text-left py-3 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-lg font-medium flex justify-between items-center text-black dark:text-white transition-colors">
+                <button class="w-full text-left py-3 px-4 rounded-lg hover:bg-gray-50 text-lg font-medium flex justify-between items-center text-black transition-colors">
                     Legal <i class="fa-solid fa-chevron-down text-sm"></i>
                 </button>
                 <div class="hidden flex-col pl-6 pr-4 py-2 space-y-2 dropdown-content">
-                    <a href="legal/privacy.html" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-neonBlue">Privacy Policy</a>
-                    <a href="legal/terms.html" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-neonBlue">Terms of Service</a>
-                    <a href="legal/dmca.html" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-neonBlue">DMCA</a>
+                    <a href="legal/privacy.html" class="block py-2 text-gray-600 hover:text-primary">Privacy Policy</a>
+                    <a href="legal/terms.html" class="block py-2 text-gray-600 hover:text-primary">Terms of Service</a>
+                    <a href="legal/dmca.html" class="block py-2 text-gray-600 hover:text-primary">DMCA</a>
                 </div>
             </div>
 
-            <a href="#" class="block py-3 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-lg font-medium text-black dark:text-white transition-colors">Write for us</a>
-            <a href="vip.html" class="block py-3 px-4 rounded-lg bg-primary/10 dark:bg-neonBlue/10 text-lg font-semibold text-primary dark:text-neonBlue transition-colors flex items-center gap-2">
+            <a href="#" class="block py-3 px-4 rounded-lg hover:bg-gray-50 text-lg font-medium text-black transition-colors">Write for us</a>
+            <a href="vip.html" class="block py-3 px-4 rounded-lg bg-primary/5 text-lg font-semibold text-primary transition-colors flex items-center gap-2">
                 <i class="fa-solid fa-crown"></i>
                 Upgrade to VIP
             </a>
             
-            <div id="authGuestArea" class="mt-6 border-t border-gray-200 dark:border-gray-800 pt-6 px-4 flex flex-col space-y-3">
-                <a href="login.html" class="w-full text-center py-2 px-4 border border-primary text-primary dark:border-neonBlue dark:text-neonBlue rounded-lg font-medium hover:bg-primary hover:text-white dark:hover:bg-neonBlue dark:hover:text-black transition-colors">Log In</a>
-                <a href="signup.html" class="w-full text-center py-2 px-4 bg-primary text-white dark:bg-neonBlue dark:text-black rounded-lg font-medium hover:bg-primaryHover transition-colors">Sign Up</a>
+            <div id="authGuestArea" class="mt-6 border-t border-gray-100 pt-6 px-4 flex flex-col space-y-3">
+                <a href="login.html" class="w-full text-center py-2 px-4 border border-primary text-primary rounded-lg font-medium hover:bg-primary hover:text-white transition-colors">Log In</a>
+                <a href="signup.html" class="w-full text-center py-2 px-4 bg-primary text-white rounded-lg font-medium hover:bg-primaryHover transition-colors">Sign Up</a>
             </div>
 
-            <div id="authUserArea" class="mt-6 border-t border-gray-200 dark:border-gray-800 pt-6 px-4 hidden">
+            <div id="authUserArea" class="mt-6 border-t border-gray-100 pt-6 px-4 hidden">
                 <div class="flex items-center justify-between gap-3">
                     <div class="min-w-0">
-                        <div class="text-xs text-gray-500 dark:text-gray-400">Logged in as</div>
-                        <div id="authUserName" class="text-sm font-semibold text-primary dark:text-neonBlue truncate"></div>
+                        <div class="text-xs text-gray-500">Logged in as</div>
+                        <div id="authUserName" class="text-sm font-semibold text-primary truncate"></div>
                     </div>
-                    <button id="logoutBtn" class="shrink-0 py-2 px-3 rounded-lg border border-primary text-primary dark:border-neonBlue dark:text-neonBlue font-semibold hover:bg-primary hover:text-white dark:hover:bg-neonBlue dark:hover:text-black transition-colors">Log Out</button>
+                    <button id="logoutBtn" class="shrink-0 py-2 px-3 rounded-lg border border-primary text-primary font-semibold hover:bg-primary hover:text-white transition-colors">Log Out</button>
                 </div>
             </div>
         </nav>
     </aside>
 
+    <!-- Main Content -->
     <main class="w-full max-w-6xl mx-auto px-4 py-12">
-        <div class="text-center mb-10">
-            <h1 class="text-3xl md:text-5xl font-bold text-black dark:text-white">Upgrade to VIP</h1>
-            <p class="mt-3 text-lg text-gray-600 dark:text-gray-300">Choose the plan that matches your needs and unlock premium features.</p>
+        <!-- Hero Section -->
+        <div class="text-center mb-16">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-black mb-6">Upgrade to SnapLoad VIP</h1>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">Get the ultimate downloading experience with unlimited 4K downloads, no ads, and priority support.</p>
         </div>
 
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-lg dark:shadow-neonBlue/10 border border-gray-100 dark:border-gray-800 p-7 flex flex-col">
-                <div class="flex items-center justify-between">
+        <!-- Pricing Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+            <!-- Free Plan -->
+            <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-lg flex flex-col transition-transform hover:-translate-y-2">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-600">
+                        <i class="fa-solid fa-user text-2xl"></i>
+                    </div>
                     <h2 class="text-xl font-bold">Free</h2>
                 </div>
                 <div class="mt-4 flex items-end gap-2">
                     <span class="text-4xl font-bold">$0</span>
-                    <span class="text-gray-500 dark:text-gray-400">/month</span>
+                    <span class="text-gray-500">/month</span>
                 </div>
-                <ul class="mt-6 space-y-3 text-gray-700 dark:text-gray-300">
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary dark:text-neonBlue"></i>720p Video quality</li>
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary dark:text-neonBlue"></i>Contains Ads</li>
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary dark:text-neonBlue"></i>Standard speed</li>
+                <ul class="mt-6 space-y-3 text-gray-700">
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary"></i>720p Video quality</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary"></i>Contains Ads</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary"></i>Standard speed</li>
                 </ul>
                 <div class="mt-8">
-                    <button id="freePlanStartBtn" class="w-full py-3 rounded-lg border border-primary text-primary dark:border-neonBlue dark:text-neonBlue font-semibold hover:bg-primary hover:text-white dark:hover:bg-neonBlue dark:hover:text-black transition-colors">Get Started</button>
+                    <button id="freePlanStartBtn" class="w-full py-3 rounded-lg border border-primary text-primary font-semibold hover:bg-primary hover:text-white transition-colors">Get Started</button>
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl dark:shadow-neonBlue/15 border-2 border-primary p-7 flex flex-col relative">
-                <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span class="px-3 py-1 rounded-full bg-primary text-white text-sm font-semibold">Recommended</span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <h2 class="text-xl font-bold">Pro</h2>
+            <!-- Pro Plan (Monthly) -->
+            <div class="bg-white rounded-3xl p-8 border-2 border-primary shadow-2xl flex flex-col relative transition-transform hover:-translate-y-2">
+                <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white px-4 py-1 rounded-full text-sm font-bold uppercase tracking-wider">Most Popular</div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                        <i class="fa-solid fa-bolt text-2xl"></i>
+                    </div>
+                    <h2 class="text-xl font-bold">Pro Plan</h2>
                 </div>
                 <div class="mt-4 flex items-end gap-2">
-                    <span class="text-4xl font-bold">$5</span>
-                    <span class="text-gray-500 dark:text-gray-400">/month</span>
+                    <span class="text-4xl font-bold">$5.00</span>
+                    <span class="text-gray-500">/month</span>
                 </div>
-                <ul class="mt-6 space-y-3 text-gray-700 dark:text-gray-300">
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary dark:text-neonBlue"></i>4K/8K Video quality</li>
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary dark:text-neonBlue"></i>No Ads</li>
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary dark:text-neonBlue"></i>High-speed servers</li>
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary dark:text-neonBlue"></i>MP3 320kbps</li>
+                <ul class="mt-6 space-y-3 text-gray-700">
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary"></i>4K & 8K Video quality</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary"></i>No Advertisements</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary"></i>Ultra-fast downloads</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary"></i>Priority processing</li>
                 </ul>
                 <div class="mt-8">
-                    <button id="proPlanBtn" class="w-full py-3 rounded-lg bg-primary hover:bg-primaryHover text-white font-semibold transition-colors">Get Started</button>
-                    <div id="paypal-button-container-pro" class="mt-3 hidden"></div>
+                    <button id="proPlanBtn" class="w-full py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primaryHover transition-colors">Choose Pro</button>
+                    <div id="paypal-button-container-pro" class="mt-4 hidden"></div>
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-lg dark:shadow-neonBlue/10 border-2 border-gold p-7 flex flex-col relative">
-                <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span class="px-3 py-1 rounded-full bg-gold text-black text-sm font-semibold">Best Value</span>
-                </div>
-                <div class="flex items-center justify-between">
+            <!-- Lifetime Plan -->
+            <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-lg flex flex-col transition-transform hover:-translate-y-2">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600">
+                        <i class="fa-solid fa-crown text-2xl"></i>
+                    </div>
                     <h2 class="text-xl font-bold">Lifetime</h2>
                 </div>
                 <div class="mt-4 flex items-end gap-2">
-                    <span class="text-4xl font-bold">$50</span>
-                    <span class="text-gray-500 dark:text-gray-400">one-time</span>
+                    <span class="text-4xl font-bold">$50.00</span>
+                    <span class="text-gray-500">once</span>
                 </div>
-                <ul class="mt-6 space-y-3 text-gray-700 dark:text-gray-300">
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary dark:text-neonBlue"></i>Everything in Pro</li>
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary dark:text-neonBlue"></i>Forever access</li>
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary dark:text-neonBlue"></i>Priority Support</li>
-                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-primary dark:text-neonBlue"></i>Beta features</li>
+                <ul class="mt-6 space-y-3 text-gray-700">
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-600"></i>All Pro features</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-600"></i>Lifetime access</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-600"></i>Dedicated support</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-amber-600"></i>Early feature access</li>
                 </ul>
                 <div class="mt-8">
-                    <button id="lifetimePlanBtn" class="w-full py-3 rounded-lg bg-primary hover:bg-primaryHover text-white font-semibold transition-colors">Get Started</button>
-                    <div id="paypal-button-container-lifetime" class="mt-3 hidden"></div>
+                    <button id="lifetimePlanBtn" class="w-full py-3 rounded-lg border border-amber-600 text-amber-600 font-semibold hover:bg-amber-600 hover:text-white transition-colors">Go Lifetime</button>
+                    <div id="paypal-button-container-lifetime" class="mt-4 hidden"></div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <section class="mt-10 bg-white dark:bg-gray-900 rounded-2xl shadow-lg dark:shadow-neonBlue/10 border border-gray-100 dark:border-gray-800 p-6 md:p-8">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold">Secure Payment</h2>
-                    <p class="mt-2 text-gray-600 dark:text-gray-300">Trusted payment methods with encrypted checkout.</p>
-                </div>
-                <div class="flex items-center gap-4 text-3xl text-gray-600 dark:text-gray-300">
-                    <i class="fa-brands fa-paypal" aria-hidden="true"></i>
-                    <i class="fa-brands fa-cc-visa" aria-hidden="true"></i>
-                    <i class="fa-brands fa-cc-mastercard" aria-hidden="true"></i>
-                    <i class="fa-brands fa-bitcoin" aria-hidden="true"></i>
-                </div>
-            </div>
-        </section>
-
-        <section class="mt-12">
-            <div class="text-center mb-8">
-                <h2 class="text-2xl md:text-3xl font-bold">Frequently Asked Questions</h2>
-                <p class="mt-2 text-gray-600 dark:text-gray-300">Quick answers to common questions about VIP plans.</p>
-            </div>
-
-            <div class="max-w-3xl mx-auto space-y-3">
-                <div class="faq-item bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden">
-                    <button class="faq-trigger w-full flex items-center justify-between gap-4 p-5 text-left">
-                        <span class="font-semibold">Can I cancel the Pro plan anytime?</span>
-                        <i class="fa-solid fa-chevron-down transition-transform duration-300"></i>
-                    </button>
-                    <div class="faq-content hidden px-5 pb-5 text-gray-600 dark:text-gray-300">
-                        Yes. You can cancel anytime and your plan remains active until the end of the billing period.
+        <!-- FAQ Section -->
+        <section class="max-w-3xl mx-auto mb-20">
+            <h2 class="text-3xl font-bold text-center mb-10 text-black">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div class="faq-item bg-white rounded-2xl p-6 border border-gray-100 shadow-sm cursor-pointer transition-colors hover:bg-gray-50">
+                    <div class="faq-trigger flex justify-between items-center">
+                        <h3 class="font-semibold text-lg text-black">How do I unlock 4K downloads?</h3>
+                        <i class="fa-solid fa-chevron-down text-gray-400 transition-transform"></i>
+                    </div>
+                    <div class="faq-content mt-4 text-gray-600 hidden">
+                        Simply choose a VIP plan (Pro or Lifetime) and complete the payment. Your account will be upgraded instantly, allowing you to select 4K quality in the downloader.
                     </div>
                 </div>
-
-                <div class="faq-item bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden">
-                    <button class="faq-trigger w-full flex items-center justify-between gap-4 p-5 text-left">
-                        <span class="font-semibold">Does Lifetime include all Pro features?</span>
-                        <i class="fa-solid fa-chevron-down transition-transform duration-300"></i>
-                    </button>
-                    <div class="faq-content hidden px-5 pb-5 text-gray-600 dark:text-gray-300">
-                        Yes. Lifetime includes everything in Pro plus forever access, priority support, and beta features.
+                <div class="faq-item bg-white rounded-2xl p-6 border border-gray-100 shadow-sm cursor-pointer transition-colors hover:bg-gray-50">
+                    <div class="faq-trigger flex justify-between items-center">
+                        <h3 class="font-semibold text-lg text-black">Which payment methods are accepted?</h3>
+                        <i class="fa-solid fa-chevron-down text-gray-400 transition-transform"></i>
+                    </div>
+                    <div class="faq-content mt-4 text-gray-600 hidden">
+                        We currently accept PayPal, which allows you to pay using your PayPal balance, bank account, or credit/debit cards safely and securely.
                     </div>
                 </div>
-
-                <div class="faq-item bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden">
-                    <button class="faq-trigger w-full flex items-center justify-between gap-4 p-5 text-left">
-                        <span class="font-semibold">Is payment secure?</span>
-                        <i class="fa-solid fa-chevron-down transition-transform duration-300"></i>
-                    </button>
-                    <div class="faq-content hidden px-5 pb-5 text-gray-600 dark:text-gray-300">
-                        Payments are processed through trusted providers. We do not store your full payment details on our servers.
+                <div class="faq-item bg-white rounded-2xl p-6 border border-gray-100 shadow-sm cursor-pointer transition-colors hover:bg-gray-50">
+                    <div class="faq-trigger flex justify-between items-center">
+                        <h3 class="font-semibold text-lg text-black">Can I cancel my subscription?</h3>
+                        <i class="fa-solid fa-chevron-down text-gray-400 transition-transform"></i>
+                    </div>
+                    <div class="faq-content mt-4 text-gray-600 hidden">
+                        Yes, you can cancel your Pro Plan subscription at any time through your PayPal account dashboard. Your VIP features will remain active until the end of your current billing period.
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer class="w-full bg-gray-50 dark:bg-black py-8 mt-12 border-t border-gray-200 dark:border-gray-800 transition-colors duration-300">
+    <!-- Footer -->
+    <footer class="w-full bg-white py-8 border-t border-gray-100 transition-colors duration-300">
         <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-clapperboard text-primary dark:text-neonBlue"></i>
-                <span class="font-bold text-gray-800 dark:text-gray-200">YT Video Downloader</span>
+                <i class="fa-solid fa-clapperboard text-primary"></i>
+                <span class="font-bold text-gray-800">YT Video Downloader</span>
             </div>
-            <div class="flex space-x-6 text-sm text-gray-600 dark:text-gray-400">
-                <a href="legal/privacy.html" class="hover:text-primary dark:hover:text-neonBlue transition-colors">Privacy Policy</a>
-                <a href="legal/terms.html" class="hover:text-primary dark:hover:text-neonBlue transition-colors">Terms of Service</a>
-                <a href="legal/dmca.html" class="hover:text-primary dark:hover:text-neonBlue transition-colors">DMCA</a>
+            <div class="flex space-x-6 text-sm text-gray-600">
+                <a href="legal/privacy.html" class="hover:text-primary transition-colors">Privacy Policy</a>
+                <a href="legal/terms.html" class="hover:text-primary transition-colors">Terms of Service</a>
+                <a href="legal/dmca.html" class="hover:text-primary transition-colors">DMCA</a>
             </div>
-            <div class="text-sm text-gray-500 dark:text-gray-500">
+            <div class="text-sm text-gray-500">
                 &copy; 2026 YT Video Downloader. All rights reserved.
             </div>
         </div>
     </footer>
 
+    <!-- Main JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabaseClient.js"></script>
     <script src="assets/js/main.js"></script>
 
     <!-- Full-Screen Loading Overlay -->
-    <div id="loadingOverlay" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/60 backdrop-blur-md hidden transition-opacity duration-300">
-        <div class="relative flex flex-col items-center">
-            <!-- Neon Green Glowing Spinner -->
-            <div class="w-20 h-20 border-4 border-t-transparent border-[#39FF14] rounded-full animate-spin shadow-[0_0_15px_#39FF14]"></div>
-            <div class="mt-8 text-center">
-                <h2 id="loadingTitle" class="text-2xl font-bold text-white mb-2">Loading...</h2>
-                <p id="loadingMessage" class="text-[#39FF14] font-medium animate-pulse">Checking VIP status...</p>
-            </div>
-            <!-- Ad Placeholder for Free Users -->
-            <div id="adContainer" class="mt-12 w-full max-w-sm hidden animate-fade-in">
-                <div class="bg-white/10 border border-white/20 rounded-xl p-4 text-center">
-                    <p class="text-xs text-gray-400 uppercase tracking-widest mb-2">Advertisement</p>
-                    <div class="aspect-video bg-gray-800 rounded-lg flex items-center justify-center">
-                        <span class="text-gray-500">Ad will disappear in <span id="adTimer">3</span>s</span>
-                    </div>
+    <div id="loadingOverlay" class="hidden">
+        <div class="spinner"></div>
+        <p id="loadingMessage" class="loading-text">Loading...</p>
+        <!-- Ad Placeholder for Free Users (hidden by default, controlled by JS) -->
+        <div id="adContainer" class="absolute inset-0 flex flex-col items-center justify-center bg-black/10 backdrop-blur-sm hidden transition-opacity duration-300">
+            <div class="bg-white/90 border border-gray-200 rounded-xl p-4 text-center shadow-xl">
+                <p class="text-xs text-gray-400 uppercase tracking-widest mb-2">Advertisement</p>
+                <div class="aspect-video bg-gray-50 rounded-lg flex items-center justify-center w-64 h-36">
+                    <span class="text-gray-500">Ad will disappear in <span id="adTimer">3</span>s</span>
                 </div>
             </div>
         </div>
     </div>
-</body>    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const faqItems = document.querySelectorAll('.faq-item');
-            faqItems.forEach((item) => {
-                const trigger = item.querySelector('.faq-trigger');
-                const content = item.querySelector('.faq-content');
-                const icon = item.querySelector('i.fa-chevron-down');
-
-                if (!trigger || !content) return;
-
-                trigger.addEventListener('click', () => {
-                    const isOpen = !content.classList.contains('hidden');
-
-                    faqItems.forEach((other) => {
-                        const otherContent = other.querySelector('.faq-content');
-                        const otherIcon = other.querySelector('i.fa-chevron-down');
-                        if (otherContent) otherContent.classList.add('hidden');
-                        if (otherIcon) otherIcon.classList.remove('rotate-180');
-                    });
-
-                    if (!isOpen) {
-                        content.classList.remove('hidden');
-                        if (icon) icon.classList.add('rotate-180');
-                    }
-                });
-            });
-        });
-    </script>
 </body>
 </html>
