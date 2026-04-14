@@ -27,8 +27,8 @@ const YouTubeAPI = {
             throw new Error("Lama heli karo Video ID-ga link-ga.");
         }
 
-        // Inta badan API-yadan waxay isticmaalaan endpoint-kan
-        const apiUrl = `https://${host}/dl?id=${videoId}`;
+        // Sida ay API-gani u shaqayso: wuxuu u baahan yahay Video ID-ga, ma aha URL-ka oo dhan
+        const apiUrl = `https://${host}/get-videos-info/${videoId}?response_mode=default`;
         
         try {
             const response = await fetch(apiUrl, {

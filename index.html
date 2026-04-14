@@ -52,10 +52,14 @@
     <header class="w-full bg-white py-4 px-6 sticky top-0 z-40 shadow-sm border-b border-gray-100">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-clapperboard text-brandBlue text-2xl"></i>
-                <span class="text-xl md:text-2xl font-bold text-brandBlue">YT Video Downloader</span>
+                <i class="fa-solid fa-clapperboard text-primary text-2xl"></i>
+                <span class="text-xl md:text-2xl font-bold text-primary">YT Video Downloader</span>
             </div>
             <div class="flex items-center space-x-4">
+                <button id="langToggle" class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 hover:border-primary transition-colors text-sm font-medium">
+                    <i class="fa-solid fa-globe text-primary"></i>
+                    <span id="langText">English</span>
+                </button>
                 <button id="menuBtn" class="text-2xl text-black">
                     <i class="fa-solid fa-bars"></i>
                 </button>
@@ -130,7 +134,7 @@
     <!-- Main Content -->
     <main class="w-full max-w-4xl mx-auto px-4 py-12 flex flex-col items-center">
         <!-- Hero Section -->
-        <h1 id="mainHeading" class="text-3xl md:text-5xl font-bold text-center mb-10 text-black leading-tight">
+        <h1 id="mainHeading" class="text-3xl md:text-5xl font-bold text-center mb-10 text-black leading-tight" data-en="The Best 4K YouTube Video Downloader with Audio" data-so="Downloader-ka ugu wanaagsan ee 4K YouTube Video iyo Audio">
             The Best 4K YouTube<br class="hidden md:block"/> Video Downloader with Audio
         </h1>
 
@@ -138,15 +142,15 @@
         <div class="w-full bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-gray-100 transition-colors duration-300">
             <div class="flex flex-col space-y-4">
                 <div class="relative w-full">
-                    <input type="text" id="videoUrl" placeholder="Paste YouTube video link" class="w-full border border-gray-200 rounded-lg py-4 px-4 text-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white text-black transition-colors" autocomplete="off">
+                    <input type="text" id="videoUrl" placeholder="Paste YouTube video link" data-en-placeholder="Paste YouTube video link" data-so-placeholder="Ku dhex rid link-ga YouTube-ka" class="w-full border border-gray-200 rounded-lg py-4 px-4 text-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white text-black transition-colors" autocomplete="off">
                 </div>
                 
                 <button id="pasteBtn" class="w-full bg-primary hover:bg-primaryHover text-black font-semibold text-lg py-4 rounded-lg transition-colors flex justify-center items-center">
-                    <i class="fa-regular fa-clipboard mr-2"></i> Paste
+                    <i class="fa-regular fa-clipboard mr-2"></i> <span data-en="Paste" data-so="Daji">Paste</span>
                 </button>
                 
                 <button id="downloadBtn" class="w-full bg-primary hover:bg-primaryHover text-black font-semibold text-lg py-4 rounded-lg transition-colors flex justify-center items-center">
-                    <span id="downloadBtnText">Download</span>
+                    <span id="downloadBtnText" data-en="Download" data-so="Soo deji">Download</span>
                     <i class="fa-solid fa-spinner fa-spin hidden ml-2" id="downloadSpinner"></i>
                 </button>
             </div>
@@ -176,6 +180,31 @@
                     <div>
                         <h3 class="font-bold text-lg text-black">Step 3: Download Complete</h3>
                         <p class="text-primary text-sm font-medium">(Soo dejiso faylkaaga)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="mt-24 w-full max-w-3xl mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-black" id="faqHeading">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div class="faq-item bg-white rounded-2xl p-6 border border-gray-100 shadow-sm cursor-pointer transition-all hover:shadow-md group">
+                    <div class="faq-trigger flex justify-between items-center">
+                        <h3 class="font-semibold text-lg text-black group-hover:text-primary transition-colors" data-en="How do I download videos?" data-so="Sideen u soo dejiyaa?">How do I download videos?</h3>
+                        <i class="fa-solid fa-chevron-down text-gray-400 group-hover:text-primary transition-transform duration-300"></i>
+                    </div>
+                    <div class="faq-content mt-4 text-gray-600 hidden leading-relaxed" data-en="Simply copy the YouTube video link, paste it into the input box above, and click Download. You can then choose your preferred quality." data-so="Kaliya koobi gareey link-ga YouTube-ka, ku dhex rid sanduuqa sare, ka dibna riix Download. Waxaad markaas dooran kartaa tayada aad rabto.">
+                        Simply copy the YouTube video link, paste it into the input box above, and click Download. You can then choose your preferred quality.
+                    </div>
+                </div>
+                <div class="faq-item bg-white rounded-2xl p-6 border border-gray-100 shadow-sm cursor-pointer transition-all hover:shadow-md group">
+                    <div class="faq-trigger flex justify-between items-center">
+                        <h3 class="font-semibold text-lg text-black group-hover:text-primary transition-colors" data-en="What is new in VIP?" data-so="Maxaa ku cusub VIP?">What is new in VIP?</h3>
+                        <i class="fa-solid fa-chevron-down text-gray-400 group-hover:text-primary transition-transform duration-300"></i>
+                    </div>
+                    <div class="faq-content mt-4 text-gray-600 hidden leading-relaxed" data-en="VIP users get access to 4K and 8K downloads, zero advertisements, ultra-fast download speeds, and priority customer support." data-so="Isticmaalayaasha VIP waxay helayaan soo dejinta 4K iyo 8K, ma jiraan wax xayeysiis ah, xawaare soo dejineed oo aad u sarreeya, iyo taageero mudnaan leh.">
+                        VIP users get access to 4K and 8K downloads, zero advertisements, ultra-fast download speeds, and priority customer support.
                     </div>
                 </div>
             </div>

@@ -13,7 +13,7 @@ const CONFIG = {
 
     // RapidAPI Configuration
     RAPIDAPI_KEY: "3636ef70f7msh2f51f6c81c32753p1b115ejsn96bd79a11c4a",
-    RAPIDAPI_HOST: "youtube-video-download-info.p.rapidapi.com" // Beddelnay host-ka
+    RAPIDAPI_HOST: "youtube-video-fast-downloader-24-7.p.rapidapi.com"
 };
 
 // Make CONFIG globally available for supabaseClient.js if it runs later (not the case here but good for consistency)
@@ -267,30 +267,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderResultCard(result, isVip = false) {
         if (!resultContainer) return;
         
-        // Response structure for YouTube Video and Shorts Downloader API
-        const title = result.title || result.video_title || result.filename || 'Video Result';
-        
-        // Handle thumbnails
-        let thumbnail = 'https://via.placeholder.com/640x360?text=No+Thumbnail';
-        if (result.thumbnail_url) {
-            thumbnail = result.thumbnail_url;
-        } else if (result.thumbnails && Array.isArray(result.thumbnails) && result.thumbnails.length > 0) {
-            thumbnail = result.thumbnails[result.thumbnails.length - 1].url || result.thumbnails[0].url;
-        } else if (result.thumbnail) {
-            thumbnail = result.thumbnail;
-        } else if (result.picker && result.picker[0] && result.picker[0].thumb) {
-            thumbnail = result.picker[0].thumb;
-        }
+        // Response structure for youtube-video-fast-downloader-24-7.p.rapidapi.com
+        const title = result.title || 'Video Result';
+        let thumbnail = result.thumbnail || 'https://via.placeholder.com/640x360?text=No+Thumbnail';
         
         let videoUrl = '';
         let audioUrl = '';
 
-        // Try to find video and audio URLs from a generic 'formats' or 'download_links' array
-        const formats = result.formats || result.download_links || [];
+        if (result.items && Array.isArray(result.items)) {
+            const availableFormats = result.items;
 
-        if (formats.length > 0) {
             // Prioritize MP4 video
-            const videoFormats = formats.filter(f => f.type === 'video' && f.extension === 'mp4');
+            const videoFormats = availableFormats.filter(f => f.type === 'video' && f.extension === 'mp4');
             if (videoFormats.length > 0) {
                 if (isVip) {
                     // For VIP, get the highest quality MP4 video
@@ -305,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Get MP3 audio
-            const audioFormats = formats.filter(f => f.type === 'audio' && f.extension === 'mp3');
+            const audioFormats = availableFormats.filter(f => f.type === 'audio' && f.extension === 'mp3');
             if (audioFormats.length > 0) {
                 audioUrl = audioFormats[0].url;
             }
@@ -387,27 +375,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!(url.includes('youtube.com') || url.includes('youtu.be'))) {
                 showToast('Link-gani ma ahan YouTube sax ah. Fadlan isku day mid kale.');
                 return;
-            }
-
-            // URL Cleaning Logic: Remove query parameters except video id if possible
-            try {
-                const urlObj = new URL(url);
-                // Keep only the origin and pathname for youtu.be and shorts
-                if (urlObj.hostname.includes('youtu.be') || urlObj.pathname.includes('/shorts/')) {
-                     url = urlObj.origin + urlObj.pathname;
-                } else if (urlObj.hostname.includes('youtube.com') && urlObj.pathname === '/watch') {
-                     // For regular watch URLs, keep only the 'v' parameter
-                     const videoId = urlObj.searchParams.get('v');
-                     if (videoId) {
-                         url = `${urlObj.origin}${urlObj.pathname}?v=${videoId}`;
-                     } else {
-                         url = urlObj.origin + urlObj.pathname;
-                     }
-                } else {
-                     url = urlObj.origin + urlObj.pathname;
-                }
-            } catch (e) {
-                // Not a valid URL object, leave it as is
             }
             
             // Check VIP status
@@ -707,5 +674,59 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('pwa_dismissed', Date.now());
         });
     }
+
+    // --- Language Toggle Logic ---
+    const langToggle = document.getElementById('langToggle');
+    const langText = document.getElementById('langText');
+    let currentLang = localStorage.getItem('ytvd_lang') || 'en';
+
+    function updateLanguageUI() {
+        const translatableElements = document.querySelectorAll('[data-en], [data-so]');
+        translatableElements.forEach(el => {
+            const translation = currentLang === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-so');
+            if (translation) el.textContent = translation;
+        });
+
+        // Placeholders
+        const placeholders = document.querySelectorAll('[data-en-placeholder], [data-so-placeholder]');
+        placeholders.forEach(el => {
+            const translation = currentLang === 'en' ? el.getAttribute('data-en-placeholder') : el.getAttribute('data-so-placeholder');
+            if (translation) el.placeholder = translation;
+        });
+
+        if (langText) langText.textContent = currentLang === 'en' ? 'English' : 'Somali';
+    }
+
+    if (langToggle) {
+        langToggle.addEventListener('click', () => {
+            currentLang = currentLang === 'en' ? 'so' : 'en';
+            localStorage.setItem('ytvd_lang', currentLang);
+            updateLanguageUI();
+        });
+    }
+
+    // Initial language set
+    updateLanguageUI();
+
+    // --- FAQ Accordion Logic ---
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const content = item.querySelector('.faq-content');
+            const icon = item.querySelector('i.fa-chevron-down');
+            
+            // Close other items
+            faqItems.forEach(otherItem => {
+                if (otherItem !== item) {
+                    otherItem.querySelector('.faq-content').classList.add('hidden');
+                    otherItem.querySelector('i.fa-chevron-down').classList.remove('rotate-180');
+                }
+            });
+
+            // Toggle current item
+            content.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        });
+    });
 
 });
