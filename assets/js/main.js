@@ -388,20 +388,30 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Restrict to YouTube only (Shorts, youtu.be, and regular)
-            const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
-            if (!youtubeRegex.test(url)) {
+            if (!(url.includes('youtube.com') || url.includes('youtu.be'))) {
                 showToast('Link-gani ma ahan YouTube sax ah. Fadlan isku day mid kale.');
                 return;
             }
 
-            // URL Cleaning Logic
+            // URL Cleaning Logic: Remove query parameters except video id if possible
             try {
                 const urlObj = new URL(url);
-                const paramsToRemove = ['si', 'pp', 'feature', 'attr', 'feature'];
-                paramsToRemove.forEach(p => urlObj.searchParams.delete(p));
-                url = urlObj.toString();
+                // Keep only the origin and pathname for youtu.be and shorts
+                if (urlObj.hostname.includes('youtu.be') || urlObj.pathname.includes('/shorts/')) {
+                     url = urlObj.origin + urlObj.pathname;
+                } else if (urlObj.hostname.includes('youtube.com') && urlObj.pathname === '/watch') {
+                     // For regular watch URLs, keep only the 'v' parameter
+                     const videoId = urlObj.searchParams.get('v');
+                     if (videoId) {
+                         url = `${urlObj.origin}${urlObj.pathname}?v=${videoId}`;
+                     } else {
+                         url = urlObj.origin + urlObj.pathname;
+                     }
+                } else {
+                     url = urlObj.origin + urlObj.pathname;
+                }
             } catch (e) {
-                // Not a valid URL
+                // Not a valid URL object, leave it as is
             }
             
             // Check VIP status
