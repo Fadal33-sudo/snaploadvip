@@ -32,11 +32,11 @@
                         sans: ['Inter', 'sans-serif'],
                     },
                     colors: {
-                        primary: '#0056b3',
-                        primaryHover: '#004494',
-                        lightBg: '#F8F9FA',
-                        darkText: '#1A1A1A',
-                        neonBlue: '#00d2ff',
+                        primary: '#39FF14',
+                        primaryHover: '#32CD32',
+                        lightBg: '#FFFFFF',
+                        darkText: '#212121',
+                        brandBlue: '#0056b3',
                     }
                 }
             }
@@ -49,14 +49,14 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabaseClient.js"></script>
 </head>
-<body class="bg-[#F8F9FA] text-[#1A1A1A] font-sans transition-colors duration-300 min-h-screen flex flex-col">
+<body class="bg-[#FFFFFF] text-[#212121] font-sans transition-colors duration-300 min-h-screen flex flex-col">
 
     <!-- Simple Header -->
     <header class="w-full py-4 px-6 absolute top-0 z-40">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <a href="index.html" class="flex items-center space-x-2">
-                <i class="fa-solid fa-clapperboard text-primary text-2xl"></i>
-                <span class="text-xl md:text-2xl font-bold text-primary">YT Video Downloader</span>
+                <i class="fa-solid fa-clapperboard text-brandBlue text-2xl"></i>
+                <span class="text-xl md:text-2xl font-bold text-brandBlue">YT Video Downloader</span>
             </a>
         </div>
     </header>
@@ -85,7 +85,7 @@
                     <input type="password" id="password" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all bg-white text-black" required>
                 </div>
 
-                <button type="submit" id="loginBtn" class="w-full bg-primary hover:bg-primaryHover text-white font-bold py-3 rounded-xl shadow-lg shadow-primary/20 transition-all flex justify-center items-center gap-2">
+                <button type="submit" id="loginBtn" class="w-full bg-primary hover:bg-primaryHover text-black font-bold py-3 rounded-xl shadow-lg shadow-primary/20 transition-all flex justify-center items-center gap-2">
                     <span id="loginBtnText">Log In</span>
                     <i id="loginSpinner" class="fa-solid fa-spinner fa-spin hidden"></i>
                 </button>

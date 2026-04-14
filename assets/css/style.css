@@ -2,8 +2,8 @@
 
 /* Enforce Light Mode Globally */
 body {
-    background-color: #FFFFFF; /* Pure White as requested */
-    color: #1A1A1A; /* Dark Gray / Black for readability */
+    background-color: #FFFFFF; /* Pure White */
+    color: #212121; /* Dark Gray */
 }
 
 /* Hide scrollbar for cleaner look on sidebar */
@@ -117,7 +117,7 @@ body {
 #loadingOverlay .loading-text {
     margin-top: 12px;
     font-size: 0.8rem;
-    color: #1A1A1A;
+    color: #212121;
     font-weight: 600;
     letter-spacing: 0.025em;
 }

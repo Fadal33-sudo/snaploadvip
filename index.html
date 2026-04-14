@@ -32,11 +32,11 @@
                         sans: ['Inter', 'sans-serif'],
                     },
                     colors: {
-                        primary: '#0056b3',
-                        primaryHover: '#004494',
-                        lightBg: '#F8F9FA',
-                        darkText: '#1A1A1A',
-                        neonBlue: '#00d2ff',
+                        primary: '#39FF14',
+                        primaryHover: '#32CD32',
+                        lightBg: '#FFFFFF',
+                        darkText: '#212121',
+                        brandBlue: '#0056b3',
                     }
                 }
             }
@@ -46,14 +46,14 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body class="bg-[#F8F9FA] text-[#1A1A1A] font-sans transition-colors duration-300">
+<body class="bg-[#FFFFFF] text-[#212121] font-sans transition-colors duration-300">
 
     <!-- Header -->
     <header class="w-full bg-white py-4 px-6 sticky top-0 z-40 shadow-sm border-b border-gray-100">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-clapperboard text-primary text-2xl"></i>
-                <span class="text-xl md:text-2xl font-bold text-primary">YT Video Downloader</span>
+                <i class="fa-solid fa-clapperboard text-brandBlue text-2xl"></i>
+                <span class="text-xl md:text-2xl font-bold text-brandBlue">YT Video Downloader</span>
             </div>
             <div class="flex items-center space-x-4">
                 <button id="menuBtn" class="text-2xl text-black">
@@ -141,11 +141,11 @@
                     <input type="text" id="videoUrl" placeholder="Paste YouTube video link" class="w-full border border-gray-200 rounded-lg py-4 px-4 text-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white text-black transition-colors" autocomplete="off">
                 </div>
                 
-                <button id="pasteBtn" class="w-full bg-primary hover:bg-primaryHover text-white font-semibold text-lg py-4 rounded-lg transition-colors flex justify-center items-center">
+                <button id="pasteBtn" class="w-full bg-primary hover:bg-primaryHover text-black font-semibold text-lg py-4 rounded-lg transition-colors flex justify-center items-center">
                     <i class="fa-regular fa-clipboard mr-2"></i> Paste
                 </button>
                 
-                <button id="downloadBtn" class="w-full bg-primary hover:bg-primaryHover text-white font-semibold text-lg py-4 rounded-lg transition-colors flex justify-center items-center">
+                <button id="downloadBtn" class="w-full bg-primary hover:bg-primaryHover text-black font-semibold text-lg py-4 rounded-lg transition-colors flex justify-center items-center">
                     <span id="downloadBtnText">Download</span>
                     <i class="fa-solid fa-spinner fa-spin hidden ml-2" id="downloadSpinner"></i>
                 </button>
@@ -208,6 +208,7 @@
     <!-- Main JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabaseClient.js"></script>
+    <script src="assets/js/api.js"></script>
     <script src="assets/js/main.js"></script>
 
     <!-- Full-Screen Loading Overlay -->
@@ -215,7 +216,7 @@
         <div class="spinner"></div>
         <p id="loadingMessage" class="loading-text">Loading...</p>
         <!-- Ad Placeholder for Free Users (hidden by default, controlled by JS) -->
-        <div id="adContainer" class="absolute inset-0 flex flex-col items-center justify-center bg-black/10 backdrop-blur-sm hidden transition-opacity duration-300">
+        <div id="adContainer" class="absolute inset-0 flex flex-col items-center justify-center bg-white/10 hidden transition-opacity duration-300">
             <div class="bg-white/90 border border-gray-200 rounded-xl p-4 text-center shadow-xl">
                 <p class="text-xs text-gray-400 uppercase tracking-widest mb-2">Advertisement</p>
                 <div class="aspect-video bg-gray-50 rounded-lg flex items-center justify-center w-64 h-36">

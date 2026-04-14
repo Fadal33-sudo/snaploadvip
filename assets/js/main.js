@@ -13,7 +13,7 @@ const CONFIG = {
 
     // RapidAPI Configuration
     RAPIDAPI_KEY: "3636ef70f7msh2f51f6c81c32753p1b115ejsn96bd79a11c4a",
-    RAPIDAPI_HOST: "auto-download-all-in-one.p.rapidapi.com"
+    RAPIDAPI_HOST: "youtube-video-fast-downloader-24-7.p.rapidapi.com"
 };
 
 // Make CONFIG globally available for supabaseClient.js if it runs later (not the case here but good for consistency)
@@ -115,11 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let messageInterval;
 
     const loadingMessages = [
-        "Checking VIP status...",
-        "Fetching YouTube details...",
-        "Optimizing download link...",
-        "Scanning for 4K quality...",
-        "Preparing your file..."
+        "Fetching video details...",
+        "Checking VIP status..."
     ];
 
     function showLoading(isVip = false) {
@@ -270,18 +267,42 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderResultCard(result, isVip = false) {
         if (!resultContainer) return;
         
-        // Response structure for Auto Download All In One API
+        // Response structure for YouTube Media Downloader API
         const title = result.title || result.filename || 'Video Result';
-        const thumbnail = result.thumbnail || (result.picker && result.picker[0] && result.picker[0].thumb) || 'https://via.placeholder.com/640x360?text=No+Thumbnail';
+        
+        // Handle thumbnails from different API structures
+        let thumbnail = 'https://via.placeholder.com/640x360?text=No+Thumbnail';
+        if (result.thumbnails && Array.isArray(result.thumbnails) && result.thumbnails.length > 0) {
+            thumbnail = result.thumbnails[result.thumbnails.length - 1].url || result.thumbnails[0].url;
+        } else if (result.thumbnail) {
+            thumbnail = result.thumbnail;
+        } else if (result.picker && result.picker[0] && result.picker[0].thumb) {
+            thumbnail = result.picker[0].thumb;
+        }
         
         let videoUrl = '';
         let audioUrl = '';
 
-        // Check 'medias' array (standard for this API)
-        if (result.medias && Array.isArray(result.medias)) {
+        // Handle YouTube Media Downloader structure
+        if (result.videos && result.videos.items && Array.isArray(result.videos.items)) {
+            // Find 720p or highest available for Free, or highest for VIP
+            const videoItems = result.videos.items;
+            if (isVip) {
+                videoUrl = videoItems[0].url; // Usually sorted by quality desc
+            } else {
+                const freeVideo = videoItems.find(v => v.quality === '720p' || v.quality === '480p') || videoItems[videoItems.length - 1];
+                videoUrl = freeVideo.url;
+            }
+        }
+        
+        if (result.audios && result.audios.items && Array.isArray(result.audios.items)) {
+            audioUrl = result.audios.items[0].url;
+        }
+
+        // Check 'medias' array (fallback for previous API or similar ones)
+        if (!videoUrl && result.medias && Array.isArray(result.medias)) {
             const videoMedias = result.medias.filter(m => m.extension === 'mp4' && m.type === 'video');
             if (videoMedias.length > 0) {
-                // If VIP, we could potentially pick higher quality if available in response
                 videoUrl = videoMedias[0].url;
             }
 
@@ -291,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Check 'links' field if 'medias' didn't yield results
+        // Check 'links' field fallback
         if (!videoUrl && result.links) {
             if (Array.isArray(result.links)) {
                 const mp4 = result.links.find(l => l.extension === 'mp4' || l.format === 'mp4');
@@ -306,17 +327,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!videoUrl) videoUrl = result.url || result.link || '#';
         
         resultContainer.innerHTML = `
-            <div class="bg-gray-50 rounded-xl p-4 md:p-6 border border-gray-200 animate-fade-in">
+            <div class="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-soft animate-fade-in">
                 <div class="flex flex-col md:flex-row gap-6">
                     <!-- Thumbnail -->
                     <div class="w-full md:w-1/3 shrink-0">
-                        <img src="${thumbnail}" alt="Thumbnail" class="w-full h-auto rounded-lg shadow-md border border-gray-200">
+                        <img src="${thumbnail}" alt="Thumbnail" class="w-full h-auto rounded-lg shadow-sm border border-gray-100">
                     </div>
                     
                     <!-- Details & Actions -->
                     <div class="flex-grow flex flex-col justify-between">
                         <div>
-                            <h3 class="text-xl font-bold text-black line-clamp-2 mb-2">${title}</h3>
+                            <h3 class="text-xl font-bold text-[#212121] line-clamp-2 mb-2">${title}</h3>
                             ${!isVip ? `
                             <p class="text-xs text-gray-500 mb-4 flex items-center gap-1">
                                 <i class="fa-solid fa-circle-info"></i> Limited to 720p for Free users
@@ -366,17 +387,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Restrict to YouTube only
-            const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
-            if (!isYouTube) {
-                showToast('Kaliya YouTube ayaa halkan laga soo dejin karaa.');
+            // Restrict to YouTube only (Shorts, youtu.be, and regular)
+            const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+            if (!youtubeRegex.test(url)) {
+                showToast('Link-gani ma ahan YouTube sax ah. Fadlan isku day mid kale.');
                 return;
             }
 
             // URL Cleaning Logic
             try {
                 const urlObj = new URL(url);
-                const paramsToRemove = ['si', 'pp', 'feature', 'attr'];
+                const paramsToRemove = ['si', 'pp', 'feature', 'attr', 'feature'];
                 paramsToRemove.forEach(p => urlObj.searchParams.delete(p));
                 url = urlObj.toString();
             } catch (e) {
@@ -399,24 +420,8 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 console.log("Starting API fetch for URL:", url);
                 
-                // Using Auto Download All In One API via RapidAPI
-                const response = await fetch('https://auto-download-all-in-one.p.rapidapi.com/v1/social/autolink', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-RapidAPI-Key': CONFIG.RAPIDAPI_KEY,
-                        'X-RapidAPI-Host': CONFIG.RAPIDAPI_HOST
-                    },
-                    body: JSON.stringify({ url: url })
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('API HTTP Error:', response.status, errorText);
-                    throw new Error(`API request failed with status ${response.status}`);
-                }
-
-                const result = await response.json();
+                // Use the new YouTubeAPI from api.js
+                const result = await YouTubeAPI.fetchVideoInfo(url);
                 console.log("API Response:", result);
                 
                 if (!result || result.error || result.status === 'error') {
@@ -429,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (err) {
                 console.error('Full Fetch Error Trace:', err);
-                showToast('Fadlan hubi link-ga aad soo gelisay.');
+                showToast('Link-gani ma ahan YouTube sax ah. Fadlan isku day mid kale.');
             } finally {
                 hideLoading();
             }

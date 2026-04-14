@@ -27,10 +27,11 @@
                         sans: ['Inter', 'sans-serif'],
                     },
                     colors: {
-                        primary: '#0056b3',
-                        primaryHover: '#004494',
-                        lightBg: '#F8F9FA',
-                        darkText: '#1A1A1A',
+                        primary: '#39FF14',
+                        primaryHover: '#32CD32',
+                        lightBg: '#FFFFFF',
+                        darkText: '#212121',
+                        brandBlue: '#0056b3',
                     }
                 }
             }
@@ -40,14 +41,14 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body class="bg-[#F8F9FA] text-[#1A1A1A] font-sans transition-colors duration-300 min-h-screen flex flex-col">
+<body class="bg-[#FFFFFF] text-[#212121] font-sans transition-colors duration-300 min-h-screen flex flex-col">
 
     <!-- Simple Header -->
     <header class="w-full py-4 px-6 absolute top-0 z-40">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <a href="index.html" class="flex items-center space-x-2">
-                <i class="fa-solid fa-clapperboard text-primary text-2xl"></i>
-                <span class="text-xl md:text-2xl font-bold text-primary">YT Video Downloader</span>
+                <i class="fa-solid fa-clapperboard text-brandBlue text-2xl"></i>
+                <span class="text-xl md:text-2xl font-bold text-brandBlue">YT Video Downloader</span>
             </a>
         </div>
     </header>
@@ -65,10 +66,10 @@
             </p>
 
             <div class="space-y-4">
-                <a href="login.html" class="block w-full bg-primary hover:bg-primaryHover text-white font-semibold text-lg py-3 rounded-lg transition-colors">
+                <a href="login.html" class="block w-full bg-primary hover:bg-primaryHover text-black font-semibold text-lg py-3 rounded-lg transition-colors">
                     Go to Login
                 </a>
-                <a href="index.html" class="block w-full text-primary hover:text-primaryHover font-medium">
+                <a href="index.html" class="block w-full text-brandBlue hover:text-primaryHover font-medium">
                     Back to Home
                 </a>
             </div>
