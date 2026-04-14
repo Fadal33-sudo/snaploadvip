@@ -444,7 +444,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (err) {
                 console.error('Full Fetch Error Trace:', err);
-                showToast('Link-gani ma ahan YouTube sax ah. Fadlan isku day mid kale.');
+                if (err.message.includes('Lama heli karo Video ID-ga')) {
+                    showToast('Fadlan soo geli link YouTube ah oo sax ah.');
+                } else {
+                    showToast('Cilad ayaa ka dhacday API-ga. Fadlan isku day mar kale.');
+                }
             } finally {
                 hideLoading();
             }

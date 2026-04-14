@@ -1,10 +1,35 @@
 const YouTubeAPI = {
+    // Function to extract video ID from various YouTube URL formats
+    extractVideoId(url) {
+        let videoId = null;
+        try {
+            const urlObj = new URL(url);
+            if (urlObj.hostname.includes('youtu.be')) {
+                videoId = urlObj.pathname.slice(1);
+            } else if (urlObj.pathname.includes('/shorts/')) {
+                videoId = urlObj.pathname.split('/shorts/')[1];
+            } else if (urlObj.hostname.includes('youtube.com') && urlObj.pathname === '/watch') {
+                videoId = urlObj.searchParams.get('v');
+            }
+        } catch (e) {
+            console.error("Error extracting Video ID:", e);
+        }
+        return videoId;
+    },
+
     async fetchVideoInfo(url) {
         const host = 'youtube-video-fast-downloader-24-7.p.rapidapi.com';
         const key = '3636ef70f7msh2f51f6c81c32753p1b115ejsn96bd79a11c4a';
         
-        // Sida uu codsaday isticmaalaha: U dir URL-ka dhamaystiran API-ga
-        const apiUrl = `https://${host}/get-videos-info/${encodeURIComponent(url)}?response_mode=default`;
+        // Hel Video ID-ga
+        const videoId = this.extractVideoId(url);
+        
+        if (!videoId) {
+            throw new Error("Lama heli karo Video ID-ga link-ga.");
+        }
+
+        // Sida ay API-gani u shaqayso: wuxuu u baahan yahay Video ID-ga, ma aha URL-ka oo dhan
+        const apiUrl = `https://${host}/get-videos-info/${videoId}?response_mode=default`;
         
         try {
             const response = await fetch(apiUrl, {
