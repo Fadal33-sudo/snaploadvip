@@ -42,8 +42,15 @@ const YouTubeAPI = {
 
             if (!response.ok) {
                 const errorData = await response.text();
-                console.error('API Error Response:', errorData);
-                throw new Error(`API error: ${response.status}`);
+                console.error('API Error Response (raw):', errorData); // Log raw error response
+                let errorMessage = `API error: ${response.status}`;
+                try {
+                    const errorJson = JSON.parse(errorData);
+                    errorMessage = errorJson.message || errorJson.error || errorData;
+                } catch (parseError) {
+                    // If not JSON, use raw text
+                }
+                throw new Error(errorMessage);
             }
 
             return await response.json();
